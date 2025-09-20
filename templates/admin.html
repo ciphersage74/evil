@@ -61,6 +61,59 @@
             </section>
 
             <section class="bg-white rounded-xl shadow p-6 md:p-8">
+                <h2 class="text-xl font-semibold text-amber-700 mb-4">Apparence du site</h2>
+                <p class="text-sm text-slate-500 mb-6">Personnalisez les couleurs principales et les polices utilisées sur le site vitrine.</p>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1" for="theme_primary_color">Couleur principale</label>
+                        <input type="color" id="theme_primary_color" name="theme_primary_color" value="{{ content.theme.primary_color }}" class="w-full h-12 border border-slate-300 rounded-lg cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1" for="theme_secondary_color">Couleur secondaire</label>
+                        <input type="color" id="theme_secondary_color" name="theme_secondary_color" value="{{ content.theme.secondary_color }}" class="w-full h-12 border border-slate-300 rounded-lg cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1" for="theme_accent_color">Couleur d'accent</label>
+                        <input type="color" id="theme_accent_color" name="theme_accent_color" value="{{ content.theme.accent_color }}" class="w-full h-12 border border-slate-300 rounded-lg cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1" for="theme_background_color">Couleur de fond</label>
+                        <input type="color" id="theme_background_color" name="theme_background_color" value="{{ content.theme.background_color }}" class="w-full h-12 border border-slate-300 rounded-lg cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1" for="theme_text_color">Couleur du texte</label>
+                        <input type="color" id="theme_text_color" name="theme_text_color" value="{{ content.theme.text_color }}" class="w-full h-12 border border-slate-300 rounded-lg cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1" for="theme_button_text_color">Texte des boutons</label>
+                        <input type="color" id="theme_button_text_color" name="theme_button_text_color" value="{{ content.theme.button_text_color }}" class="w-full h-12 border border-slate-300 rounded-lg cursor-pointer">
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6 mt-6">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1" for="theme_heading_font_family">Police des titres</label>
+                        <input id="theme_heading_font_family" name="theme_heading_font_family" value="{{ content.theme.heading_font_family }}" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Playfair Display">
+                        <p class="text-xs text-slate-500 mt-1">Nom de la police utilisée pour les titres.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1" for="theme_heading_font_url">Lien CSS de la police des titres</label>
+                        <input id="theme_heading_font_url" name="theme_heading_font_url" value="{{ content.theme.heading_font_url }}" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="https://fonts.googleapis.com/...">
+                        <p class="text-xs text-slate-500 mt-1">Collez l'URL fournie par Google Fonts ou votre hébergeur.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1" for="theme_body_font_family">Police du texte</label>
+                        <input id="theme_body_font_family" name="theme_body_font_family" value="{{ content.theme.body_font_family }}" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Montserrat">
+                        <p class="text-xs text-slate-500 mt-1">Nom de la police utilisée pour le corps du texte.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1" for="theme_body_font_url">Lien CSS de la police du texte</label>
+                        <input id="theme_body_font_url" name="theme_body_font_url" value="{{ content.theme.body_font_url }}" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="https://fonts.googleapis.com/...">
+                        <p class="text-xs text-slate-500 mt-1">Utilisez l'URL CSS complète pour charger la police.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-xl shadow p-6 md:p-8">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-xl font-semibold text-amber-700">Navigation principale</h2>
                     <button type="button" class="text-sm text-amber-700 hover:underline" data-add="navigation">Ajouter un lien</button>
@@ -179,7 +232,7 @@
                 </div>
 
                 <div id="menu_items-container" class="space-y-6">
-                    {% for item in content.menu.items %}
+                    {% for item in content.menu["items"] %}
                         <div class="border border-slate-200 rounded-lg p-4 space-y-4" data-list-item>
                             <div class="grid md:grid-cols-3 gap-4">
                                 <div>
@@ -205,7 +258,7 @@
                         </div>
                     {% endfor %}
                 </div>
-                <input type="hidden" name="menu_items_count" id="menu_items-count" value="{{ content.menu.items|length }}">
+                <input type="hidden" name="menu_items_count" id="menu_items-count" value="{{ content.menu['items']|length }}">
                 <template id="menu_items-template">
                     <div class="border border-slate-200 rounded-lg p-4 space-y-4" data-list-item>
                         <div class="grid md:grid-cols-3 gap-4">
@@ -458,6 +511,18 @@
                 <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold px-8 py-3 rounded-lg shadow">Enregistrer les modifications</button>
             </div>
         </form>
+
+        <section class="mt-10">
+            <div class="bg-white rounded-xl shadow p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <div>
+                    <h2 class="text-xl font-semibold text-amber-700 mb-2">Exporter votre site</h2>
+                    <p class="text-sm text-slate-500 max-w-2xl">Après avoir enregistré vos modifications, cliquez sur le bouton ci-dessous pour télécharger un dossier ZIP contenant l'HTML généré, le contenu JSON et toutes les ressources locales.</p>
+                </div>
+                <form action="{{ url_for('export_site') }}" method="post" class="flex-shrink-0">
+                    <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold px-6 py-3 rounded-lg shadow">Générer le dossier prêt à l'emploi</button>
+                </form>
+            </div>
+        </section>
     </main>
 
     <script>

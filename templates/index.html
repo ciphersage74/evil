@@ -5,21 +5,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ content.site.title }}</title>
     <meta name="description" content="{{ content.site.meta_description }}">
-    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    {% set heading_font_url = content.theme.heading_font_url %}
+    {% set body_font_url = content.theme.body_font_url %}
+    {% set heading_font_name = content.theme.heading_font_family or 'Playfair Display' %}
+    {% set body_font_name = content.theme.body_font_family or 'Montserrat' %}
+    <link rel="icon" type="image/x-icon" href="{{ 'static/favicon.ico' if export_mode else '/static/favicon.ico' }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <script src="https://unpkg.com/feather-icons"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    {% if heading_font_url or body_font_url %}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    {% endif %}
+    {% if heading_font_url %}
+        <link rel="stylesheet" href="{{ heading_font_url }}">
+    {% endif %}
+    {% if body_font_url and body_font_url != heading_font_url %}
+        <link rel="stylesheet" href="{{ body_font_url }}">
+    {% endif %}
     <style>
+        :root {
+            --primary-color: {{ content.theme.primary_color or '#d97706' }};
+            --secondary-color: {{ content.theme.secondary_color or '#b45309' }};
+            --accent-color: {{ content.theme.accent_color or '#fef3c7' }};
+            --background-color: {{ content.theme.background_color or '#f9fafb' }};
+            --text-color: {{ content.theme.text_color or '#1f2937' }};
+            --button-text-color: {{ content.theme.button_text_color or '#ffffff' }};
+            --heading-font: "{{ heading_font_name | replace('"', '\"') }}";
+            --body-font: "{{ body_font_name | replace('"', '\"') }}";
+        }
         body {
-            font-family: 'Montserrat', sans-serif;
+            font-family: var(--body-font), sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
         }
         .title-font {
-            font-family: 'Playfair Display', serif;
+            font-family: var(--heading-font), serif;
+        }
+        .text-gray-800,
+        .text-gray-700 {
+            color: var(--text-color);
+        }
+        .text-gray-600 {
+            color: var(--text-color);
+            opacity: 0.85;
+        }
+        .text-gray-500 {
+            color: var(--text-color);
+            opacity: 0.75;
+        }
+        .bg-gray-50 {
+            background-color: var(--background-color) !important;
+        }
+        .text-amber-800,
+        .hover\:text-amber-800:hover {
+            color: var(--secondary-color) !important;
+        }
+        .text-amber-600,
+        .hover\:text-amber-600:hover {
+            color: var(--primary-color) !important;
+        }
+        .bg-amber-600,
+        .hover\:bg-amber-600:hover {
+            background-color: var(--primary-color) !important;
+            color: var(--button-text-color) !important;
+        }
+        .hover\:text-white:hover {
+            color: var(--button-text-color) !important;
+        }
+        .hover\:bg-amber-700:hover {
+            background-color: var(--secondary-color) !important;
+            color: var(--button-text-color) !important;
+        }
+        .bg-amber-100 {
+            background-color: var(--accent-color) !important;
+            color: var(--primary-color) !important;
+        }
+        .border-amber-600 {
+            border-color: var(--primary-color) !important;
         }
         .hero-image {
             background-image: linear-gradient(rgba(0,0,0,.4), rgba(0,0,0,.4)), url('{{ content.hero.background_image }}');
@@ -37,7 +102,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="antialiased">
     <!-- Navigation -->
     <nav class="bg-white shadow-md fixed w-full z-10">
         <div class="container mx-auto px-6 py-4">
@@ -107,7 +172,7 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {% for item in content.menu.items %}
+                {% for item in content.menu["items"] %}
                     <div class="bg-white rounded-lg overflow-hidden shadow-lg" data-aos="zoom-in" {% if loop.index0 %}data-aos-delay="{{ loop.index0 * 100 }}"{% endif %}>
                         <div class="relative h-64 overflow-hidden">
                             <img src="{{ item.image }}" alt="{{ item.title }}" class="w-full h-full object-cover">

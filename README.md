@@ -14,6 +14,8 @@ Cette application Flask génère un site web élégant pour un restaurant (ou to
   - les coordonnées de contact et l'intégration Google Maps,
   - les libellés du formulaire de contact,
   - les liens et réseaux sociaux du pied de page.
+- Personnalisation du thème : choix des couleurs clés et des polices (titres & texte) depuis le panneau admin.
+- Export en un clic d'un dossier statique prêt à déployer (HTML, contenu JSON et images uploadées).
 - Téléversement d'images (PNG, JPG, JPEG, GIF, WebP) stockées dans `static/uploads/`.
 - Possibilité d'ajouter/supprimer dynamiquement des éléments via l'interface.
 
@@ -49,11 +51,31 @@ Pour les modifier, définissez les variables d'environnement `ADMIN_USERNAME` et
 
 ## Gestion des images
 
-Les fichiers téléversés depuis le panneau admin sont enregistrés dans `static/uploads/`. Ce dossier est ignoré par Git (sauf le fichier `.gitkeep`). Pensez à sauvegarder vos images si vous déployez l'application sur un autre serveur.
+Les fichiers téléversés depuis le panneau admin sont enregistrés dans `static/uploads/`. Ce dossier est ignoré par Git : pensez à sauvegarder vos images si vous déployez l'application sur un autre serveur ou utilisez la fonction d'export pour récupérer une copie complète.
 
 ## Personnalisation avancée
 
 Le fichier `content.json` contient l'ensemble des données affichées sur le site. Vous pouvez l'éditer manuellement ou via le panneau admin. Les listes (navigation, menu, horaires, etc.) peuvent être complétées ou réduites directement dans l'interface.
+
+### Couleurs & polices
+
+L'onglet « Apparence du site » de l'administration permet de définir :
+
+- les couleurs principale, secondaire, d'accent, de fond et du texte ;
+- la couleur du texte des boutons pour garantir la lisibilité ;
+- les polices utilisées pour les titres et le corps du texte (renseignez le nom de la police et, si besoin, l'URL CSS fournie par Google Fonts ou un autre fournisseur).
+
+Les valeurs enregistrées sont immédiatement reflétées sur la page publique.
+
+## Export statique
+
+Depuis le panneau d'administration, la section « Exporter votre site » permet de télécharger une archive ZIP contenant :
+
+- le fichier `index.html` généré avec vos contenus et votre thème ;
+- une copie du `content.json` actuel ;
+- l'intégralité du dossier `static/` (y compris les images téléversées).
+
+Décompressez simplement l'archive pour obtenir un dossier prêt à être déployé sur un hébergement statique.
 
 ## Déploiement
 

@@ -1,6 +1,8 @@
 import json
 import os
+import zipfile
 from functools import wraps
+from io import BytesIO
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
@@ -11,6 +13,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    send_file,
     session,
     url_for,
 )
@@ -37,6 +40,18 @@ def default_content() -> Dict[str, Any]:
             "name": "Café Ernesto",
             "title": "Café Ernesto - Restaurant élégant à Annemasse",
             "meta_description": "Une expérience culinaire raffinée au cœur d'Annemasse.",
+        },
+        "theme": {
+            "primary_color": "#d97706",
+            "secondary_color": "#b45309",
+            "accent_color": "#fef3c7",
+            "background_color": "#f9fafb",
+            "text_color": "#1f2937",
+            "button_text_color": "#ffffff",
+            "heading_font_family": "Playfair Display",
+            "heading_font_url": "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap",
+            "body_font_family": "Montserrat",
+            "body_font_url": "https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap",
         },
         "navigation": [
             {"label": "Accueil", "target": "#home"},
@@ -158,7 +173,15 @@ def ensure_setup() -> None:
 def load_content() -> Dict[str, Any]:
     ensure_setup()
     with CONTENT_PATH.open("r", encoding="utf-8") as fp:
-        return json.load(fp)
+        data: Dict[str, Any] = json.load(fp)
+
+    defaults = default_content()
+    theme_defaults = defaults.get("theme", {})
+    theme = data.setdefault("theme", {})
+    for key, value in theme_defaults.items():
+        theme.setdefault(key, value)
+
+    return data
 
 
 def save_content(content: Dict[str, Any]) -> None:
@@ -200,7 +223,7 @@ def login_required(view):
 @app.route("/")
 def index():
     content = load_content()
-    return render_template("index.html", content=content)
+    return render_template("index.html", content=content, export_mode=False)
 
 
 @app.route("/admin/login", methods=["GET", "POST"])
@@ -271,6 +294,18 @@ def update_content_from_form(content: Dict[str, Any]) -> Dict[str, Any]:
     updated["site"]["name"] = request.form.get("site_name", "").strip()
     updated["site"]["title"] = request.form.get("site_title", "").strip()
     updated["site"]["meta_description"] = request.form.get("site_meta_description", "").strip()
+
+    theme = updated.setdefault("theme", {})
+    theme["primary_color"] = request.form.get("theme_primary_color", theme.get("primary_color", "")).strip()
+    theme["secondary_color"] = request.form.get("theme_secondary_color", theme.get("secondary_color", "")).strip()
+    theme["accent_color"] = request.form.get("theme_accent_color", theme.get("accent_color", "")).strip()
+    theme["background_color"] = request.form.get("theme_background_color", theme.get("background_color", "")).strip()
+    theme["text_color"] = request.form.get("theme_text_color", theme.get("text_color", "")).strip()
+    theme["button_text_color"] = request.form.get("theme_button_text_color", theme.get("button_text_color", "")).strip()
+    theme["heading_font_family"] = request.form.get("theme_heading_font_family", theme.get("heading_font_family", "")).strip()
+    theme["heading_font_url"] = request.form.get("theme_heading_font_url", theme.get("heading_font_url", "")).strip()
+    theme["body_font_family"] = request.form.get("theme_body_font_family", theme.get("body_font_family", "")).strip()
+    theme["body_font_url"] = request.form.get("theme_body_font_url", theme.get("body_font_url", "")).strip()
 
     updated["navigation"] = parse_list_from_form("navigation", ["label", "target"])
 
@@ -372,6 +407,79 @@ def update_content_from_form(content: Dict[str, Any]) -> Dict[str, Any]:
     updated["footer"]["socials"] = parse_list_from_form("footer_socials", ["icon", "url"])
 
     return updated
+
+
+def slugify(value: str) -> str:
+    """Create a filesystem-friendly slug."""
+
+    value = (value or "").lower()
+    normalized: List[str] = []
+    for char in value:
+        if char.isalnum():
+            normalized.append(char)
+        elif char in {" ", "-", "_", "/"}:
+            if not normalized or normalized[-1] != "-":
+                normalized.append("-")
+    slug = "".join(normalized).strip("-")
+    return slug or "site-web"
+
+
+def prepare_export_content(content: Dict[str, Any]) -> Dict[str, Any]:
+    """Return a deep copy of the content with static paths adjusted for export."""
+
+    def transform(value: Any) -> Any:
+        if isinstance(value, dict):
+            return {key: transform(val) for key, val in value.items()}
+        if isinstance(value, list):
+            return [transform(item) for item in value]
+        if isinstance(value, str) and value.startswith("/static/"):
+            return value.lstrip("/")
+        return value
+
+    return transform(json.loads(json.dumps(content)))
+
+
+@app.route("/admin/export", methods=["POST"])
+@login_required
+def export_site():
+    content = load_content()
+    export_content = prepare_export_content(content)
+    rendered = render_template("index.html", content=export_content, export_mode=True)
+
+    buffer = BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("index.html", rendered)
+        archive.writestr(
+            "content.json",
+            json.dumps(export_content, ensure_ascii=False, indent=2),
+        )
+
+        static_folder = BASE_DIR / "static"
+        if static_folder.exists():
+            has_files = False
+            for path in static_folder.rglob("*"):
+                if path.is_file():
+                    archive.write(
+                        path,
+                        Path("static") / path.relative_to(static_folder),
+                    )
+                    has_files = True
+            uploads_dir = static_folder / "uploads"
+            if uploads_dir.exists() and not any(uploads_dir.iterdir()):
+                archive.writestr("static/uploads/.keep", "")
+            if not has_files and not uploads_dir.exists():
+                archive.writestr("static/uploads/.keep", "")
+        else:
+            archive.writestr("static/uploads/.keep", "")
+
+    buffer.seek(0)
+    filename = f"{slugify(content['site'].get('name', ''))}-site.zip"
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name=filename,
+        mimetype="application/zip",
+    )
 
 
 ensure_setup()
