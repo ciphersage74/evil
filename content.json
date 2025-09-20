@@ -1,0 +1,114 @@
+{
+  "site": {
+    "name": "Café Ernesto",
+    "title": "Café Ernesto - Restaurant élégant à Annemasse",
+    "meta_description": "Une expérience culinaire raffinée au cœur d'Annemasse."
+  },
+  "navigation": [
+    {"label": "Accueil", "target": "#home"},
+    {"label": "À propos", "target": "#about"},
+    {"label": "Menu", "target": "#menu"},
+    {"label": "Horaires", "target": "#hours"},
+    {"label": "Contact", "target": "#contact"}
+  ],
+  "hero": {
+    "title": "Café Ernesto",
+    "subtitle": "Une expérience culinaire raffinée au cœur d'Annemasse",
+    "cta_label": "Découvrir notre menu",
+    "cta_link": "#menu",
+    "background_image": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1600&q=80"
+  },
+  "about": {
+    "title": "Notre histoire",
+    "paragraphs": [
+      "Fondé en 2010, Café Ernesto est rapidement devenu une référence gastronomique à Annemasse. Notre chef, formé dans les meilleures écoles culinaires françaises, vous propose une cuisine inventive tout en respectant les traditions.",
+      "Notre établissement allie élégance et convivialité, offrant à nos clients une expérience mémorable dans un cadre chaleureux et raffiné."
+    ],
+    "image": "https://images.unsplash.com/photo-1543772829-2e49208e1b6b?auto=format&fit=crop&w=1200&q=80",
+    "rating_label": "Note moyenne",
+    "rating_value": "4.8/5",
+    "rating_subtext": "Basé sur 311 avis"
+  },
+  "menu": {
+    "title": "Notre Menu",
+    "description": "Découvrez notre sélection de plats préparés avec des ingrédients frais et locaux.",
+    "items": [
+      {
+        "title": "Plat du jour",
+        "description": "Notre spécialité changeante selon les saisons et les inspirations du chef.",
+        "price": "15€",
+        "image": "https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        "title": "Salade gourmande",
+        "description": "Mélange de jeunes pousses, noix, fromage de chèvre et vinaigrette maison.",
+        "price": "12€",
+        "image": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        "title": "Dessert du moment",
+        "description": "Une création sucrée qui change quotidiennement pour votre plus grand plaisir.",
+        "price": "8€",
+        "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80"
+      }
+    ],
+    "cta_text": "Voir le menu complet",
+    "cta_link": "#"
+  },
+  "hours": {
+    "title": "Nos Horaires",
+    "description": "Venez nous rendre visite aux heures d'ouverture suivantes",
+    "entries": [
+      {"label": "Mardi", "value": "08:00 - 18:00"},
+      {"label": "Mercredi", "value": "08:00 - 18:00"},
+      {"label": "Jeudi", "value": "08:00 - 18:00"},
+      {"label": "Vendredi", "value": "08:00 - 18:00"},
+      {"label": "Samedi", "value": "08:00 - 18:00"},
+      {"label": "Dimanche & Lundi", "value": "Fermé", "highlight": true}
+    ]
+  },
+  "contact": {
+    "title": "Nous Contacter",
+    "description": "Pour toute réservation ou information, n'hésitez pas à nous contacter",
+    "information": [
+      {
+        "icon": "map-pin",
+        "label": "Adresse",
+        "value": "5 Rue de la Gare, 74100 Annemasse, France"
+      },
+      {
+        "icon": "phone",
+        "label": "Téléphone",
+        "value": "+33 4 50 80 18 78"
+      },
+      {
+        "icon": "mail",
+        "label": "Email",
+        "value": "contact@cafeernesto.fr"
+      }
+    ],
+    "map_embed_url": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2761.302184009318!2d6.23401531559236!3d46.19413087911542!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x478c64d6b6e8f0a9%3A0x5c2c7a3d0d1b3e5d!2s5%20Rue%20de%20la%20Gare%2C%2074100%20Annemasse%2C%20France!5e0!3m2!1sfr!2sfr!4v1620000000000!5m2!1sfr!2sfr"
+  },
+  "contact_form": {
+    "name_label": "Nom",
+    "email_label": "Email",
+    "message_label": "Message",
+    "button_label": "Envoyer"
+  },
+  "footer": {
+    "description": "Une expérience culinaire raffinée au cœur d'Annemasse.",
+    "links": [
+      {"label": "Accueil", "target": "#home"},
+      {"label": "À propos", "target": "#about"},
+      {"label": "Menu", "target": "#menu"},
+      {"label": "Horaires", "target": "#hours"},
+      {"label": "Contact", "target": "#contact"}
+    ],
+    "socials": [
+      {"icon": "facebook", "url": "#"},
+      {"icon": "instagram", "url": "#"},
+      {"icon": "twitter", "url": "#"}
+    ],
+    "copyright": "© 2023 Café Ernesto. Tous droits réservés."
+  }
+}
