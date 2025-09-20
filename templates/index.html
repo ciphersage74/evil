@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ content.site.title }}</title>
+    <meta name="description" content="{{ content.site.meta_description }}">
+    {% set heading_font_url = content.theme.heading_font_url %}
+    {% set body_font_url = content.theme.body_font_url %}
+    {% set heading_font_name = content.theme.heading_font_family or 'Playfair Display' %}
+    {% set body_font_name = content.theme.body_font_family or 'Montserrat' %}
+    <link rel="icon" type="image/x-icon" href="{{ 'static/favicon.ico' if export_mode else '/static/favicon.ico' }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    {% if heading_font_url or body_font_url %}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    {% endif %}
+    {% if heading_font_url %}
+        <link rel="stylesheet" href="{{ heading_font_url }}">
+    {% endif %}
+    {% if body_font_url and body_font_url != heading_font_url %}
+        <link rel="stylesheet" href="{{ body_font_url }}">
+    {% endif %}
+    <style>
+        :root {
+            --primary-color: {{ content.theme.primary_color or '#d97706' }};
+            --secondary-color: {{ content.theme.secondary_color or '#b45309' }};
+            --accent-color: {{ content.theme.accent_color or '#fef3c7' }};
+            --background-color: {{ content.theme.background_color or '#f9fafb' }};
+            --text-color: {{ content.theme.text_color or '#1f2937' }};
+            --button-text-color: {{ content.theme.button_text_color or '#ffffff' }};
+            --heading-font: "{{ heading_font_name | replace('"', '\"') }}";
+            --body-font: "{{ body_font_name | replace('"', '\"') }}";
+        }
+        body {
+            font-family: var(--body-font), sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        .title-font {
+            font-family: var(--heading-font), serif;
+        }
+        .text-gray-800,
+        .text-gray-700 {
+            color: var(--text-color);
+        }
+        .text-gray-600 {
+            color: var(--text-color);
+            opacity: 0.85;
+        }
+        .text-gray-500 {
+            color: var(--text-color);
+            opacity: 0.75;
+        }
+        .bg-gray-50 {
+            background-color: var(--background-color) !important;
+        }
+        .text-amber-800,
+        .hover\:text-amber-800:hover {
+            color: var(--secondary-color) !important;
+        }
+        .text-amber-600,
+        .hover\:text-amber-600:hover {
+            color: var(--primary-color) !important;
+        }
+        .bg-amber-600,
+        .hover\:bg-amber-600:hover {
+            background-color: var(--primary-color) !important;
+            color: var(--button-text-color) !important;
+        }
+        .hover\:text-white:hover {
+            color: var(--button-text-color) !important;
+        }
+        .hover\:bg-amber-700:hover {
+            background-color: var(--secondary-color) !important;
+            color: var(--button-text-color) !important;
+        }
+        .bg-amber-100 {
+            background-color: var(--accent-color) !important;
+            color: var(--primary-color) !important;
+        }
+        .border-amber-600 {
+            border-color: var(--primary-color) !important;
+        }
+        .hero-image {
+            background-image: linear-gradient(rgba(0,0,0,.4), rgba(0,0,0,.4)), url('{{ content.hero.background_image }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+        }
+        .menu-overlay {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .relative:hover .menu-overlay {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md fixed w-full z-10">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <a href="#" class="title-font text-2xl font-bold text-amber-800">{{ content.site.name }}</a>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    {% for item in content.navigation %}
+                        <a href="{{ item.target }}" class="text-gray-700 hover:text-amber-600 transition">{{ item.label }}</a>
+                    {% endfor %}
+                </div>
+                <div class="md:hidden">
+                    <button class="text-gray-700 focus:outline-none">
+                        <i data-feather="menu"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-image h-screen flex items-center justify-center text-white pt-20">
+        <div class="container mx-auto px-6 text-center" data-aos="fade-up">
+            <h1 class="title-font text-5xl md:text-7xl font-bold mb-6">{{ content.hero.title }}</h1>
+            <p class="text-xl md:text-2xl mb-8">{{ content.hero.subtitle }}</p>
+            {% if content.hero.cta_label %}
+                <a href="{{ content.hero.cta_link }}" class="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-full font-semibold transition duration-300 inline-block">{{ content.hero.cta_label }}</a>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0" data-aos="fade-right">
+                    <img src="{{ content.about.image }}" alt="{{ content.site.name }}" class="rounded-lg shadow-xl">
+                </div>
+                <div class="md:w-1/2 md:pl-12" data-aos="fade-left">
+                    <h2 class="title-font text-3xl md:text-4xl font-bold mb-6 text-amber-800">{{ content.about.title }}</h2>
+                    {% for paragraph in content.about.paragraphs %}
+                        <p class="text-gray-600 mb-4">{{ paragraph }}</p>
+                    {% endfor %}
+                    {% if content.about.rating_value %}
+                        <div class="flex items-center">
+                            <div class="bg-amber-100 p-4 rounded-full mr-4">
+                                <i data-feather="star" class="text-amber-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold">{{ content.about.rating_label }}{% if content.about.rating_value %}: {{ content.about.rating_value }}{% endif %}</p>
+                                <p class="text-sm text-gray-500">{{ content.about.rating_subtext }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Menu Section -->
+    <section id="menu" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="title-font text-3xl md:text-4xl font-bold mb-4 text-amber-800">{{ content.menu.title }}</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">{{ content.menu.description }}</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for item in content.menu["items"] %}
+                    <div class="bg-white rounded-lg overflow-hidden shadow-lg" data-aos="zoom-in" {% if loop.index0 %}data-aos-delay="{{ loop.index0 * 100 }}"{% endif %}>
+                        <div class="relative h-64 overflow-hidden">
+                            <img src="{{ item.image }}" alt="{{ item.title }}" class="w-full h-full object-cover">
+                            {% if item.price %}
+                                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center menu-overlay opacity-0">
+                                    <span class="text-white font-bold text-lg">{{ item.price }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="p-6">
+                            <h3 class="title-font text-xl font-bold mb-2">{{ item.title }}</h3>
+                            <p class="text-gray-600">{{ item.description }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if content.menu.cta_text %}
+                <div class="text-center mt-12">
+                    <a href="{{ content.menu.cta_link }}" class="inline-block border-2 border-amber-600 text-amber-600 hover:bg-amber-600 hover:text-white px-8 py-3 rounded-full font-semibold transition duration-300">{{ content.menu.cta_text }}</a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Hours Section -->
+    <section id="hours" class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="title-font text-3xl md:text-4xl font-bold mb-4 text-amber-800">{{ content.hours.title }}</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">{{ content.hours.description }}</p>
+            </div>
+
+            <div class="max-w-md mx-auto bg-gray-50 rounded-xl shadow-md overflow-hidden" data-aos="fade-up">
+                <div class="p-8">
+                    {% for entry in content.hours.entries %}
+                        <div class="flex justify-between items-center py-4 {% if not loop.last %}border-b border-gray-200{% endif %}">
+                            <span class="font-semibold">{{ entry.label }}</span>
+                            {% if entry.highlight %}
+                                <span class="text-red-500">{{ entry.value }}</span>
+                            {% else %}
+                                <span>{{ entry.value }}</span>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="title-font text-3xl md:text-4xl font-bold mb-4 text-amber-800">{{ content.contact.title }}</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">{{ content.contact.description }}</p>
+            </div>
+
+            <div class="flex flex-col md:flex-row">
+                <div class="md:w-1/2 mb-10 md:mb-0" data-aos="fade-right">
+                    <div class="bg-white p-8 rounded-xl shadow-lg h-full">
+                        <h3 class="title-font text-2xl font-bold mb-6 text-amber-800">Informations</h3>
+
+                        {% for info in content.contact.information %}
+                            <div class="flex items-start mb-6">
+                                <div class="bg-amber-100 p-3 rounded-full mr-4">
+                                    <i data-feather="{{ info.icon }}" class="text-amber-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">{{ info.label }}</h4>
+                                    <p class="text-gray-600">{{ info.value }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="md:w-1/2 md:pl-10" data-aos="fade-left">
+                    <div class="bg-white p-8 rounded-xl shadow-lg h-full">
+                        <h3 class="title-font text-2xl font-bold mb-6 text-amber-800">Envoyez-nous un message</h3>
+                        <form>
+                            <div class="mb-4">
+                                <label for="name" class="block text-gray-700 mb-2">{{ content.contact_form.name_label }}</label>
+                                <input type="text" id="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+                            <div class="mb-4">
+                                <label for="email" class="block text-gray-700 mb-2">{{ content.contact_form.email_label }}</label>
+                                <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            </div>
+                            <div class="mb-4">
+                                <label for="message" class="block text-gray-700 mb-2">{{ content.contact_form.message_label }}</label>
+                                <textarea id="message" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-lg font-semibold transition duration-300">{{ content.contact_form.button_label }}</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    {% if content.contact.map_embed_url %}
+        <div class="h-96 w-full">
+            <iframe src="{{ content.contact.map_embed_url }}" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+    {% endif %}
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-8 md:mb-0">
+                    <h3 class="title-font text-2xl font-bold mb-4">{{ content.site.name }}</h3>
+                    <p class="text-gray-400 max-w-xs">{{ content.footer.description }}</p>
+                </div>
+                <div class="mb-8 md:mb-0">
+                    <h4 class="font-semibold mb-4">Liens rapides</h4>
+                    <ul class="space-y-2">
+                        {% for link in content.footer.links %}
+                            <li><a href="{{ link.target }}" class="text-gray-400 hover:text-white transition">{{ link.label }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Suivez-nous</h4>
+                    <div class="flex space-x-4">
+                        {% for social in content.footer.socials %}
+                            <a href="{{ social.url }}" class="bg-gray-700 hover:bg-gray-600 w-10 h-10 rounded-full flex items-center justify-center transition">
+                                <i data-feather="{{ social.icon }}"></i>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>{{ content.footer.copyright }}</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+        feather.replace();
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const target = document.querySelector(this.getAttribute('href'));
+                if (!target) {
+                    return;
+                }
+                e.preventDefault();
+                target.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
