@@ -6,6 +6,7 @@ const KEYS = {
   premium: 'is_premium',
   batteryTip: 'battery_tip_dismissed',
   lastMix: 'last_mix',
+  seenIntroPaywall: 'seen_intro_paywall',
 };
 
 export type Prefs = {
@@ -13,10 +14,12 @@ export type Prefs = {
   onboardingDone: boolean;
   premium: boolean;
   batteryTipDismissed: boolean;
+  seenIntroPaywall: boolean;
   lastMix: Record<string, number>;
   setOnboardingDone: () => void;
   setPremium: (v: boolean) => void;
   dismissBatteryTip: () => void;
+  setSeenIntroPaywall: () => void;
   saveMix: (mix: Record<string, number>) => void;
 };
 
@@ -25,6 +28,7 @@ export function usePrefs(): Prefs {
   const [onboardingDone, setOnboarding] = useState(false);
   const [premium, setPremiumState] = useState(false);
   const [batteryTipDismissed, setBattery] = useState(false);
+  const [seenIntroPaywall, setSeenIntro] = useState(false);
   const [lastMix, setLastMix] = useState<Record<string, number>>({});
 
   useEffect(() => {
@@ -35,6 +39,7 @@ export function usePrefs(): Prefs {
         setOnboarding(map[KEYS.onboardingDone] === 'true');
         setPremiumState(map[KEYS.premium] === 'true');
         setBattery(map[KEYS.batteryTip] === 'true');
+        setSeenIntro(map[KEYS.seenIntroPaywall] === 'true');
         const storedMix = map[KEYS.lastMix];
         if (storedMix) setLastMix(JSON.parse(storedMix));
       } catch {
@@ -60,6 +65,11 @@ export function usePrefs(): Prefs {
     AsyncStorage.setItem(KEYS.batteryTip, 'true');
   }, []);
 
+  const setSeenIntroPaywall = useCallback(() => {
+    setSeenIntro(true);
+    AsyncStorage.setItem(KEYS.seenIntroPaywall, 'true');
+  }, []);
+
   const saveMix = useCallback((mix: Record<string, number>) => {
     setLastMix(mix);
     AsyncStorage.setItem(KEYS.lastMix, JSON.stringify(mix));
@@ -70,10 +80,12 @@ export function usePrefs(): Prefs {
     onboardingDone,
     premium,
     batteryTipDismissed,
+    seenIntroPaywall,
     lastMix,
     setOnboardingDone,
     setPremium,
     dismissBatteryTip,
+    setSeenIntroPaywall,
     saveMix,
   };
 }

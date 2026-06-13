@@ -32,18 +32,39 @@ Autres atouts repris des meilleures apps : **mixeur** (plusieurs sons + volume
 individuel), **minuterie de sommeil avec fondu**, fonctionne **hors-ligne**, sons
 spécial nourrisson (**cœur maternel / womb**).
 
-## 💰 Monétisation — quoi facturer et comment
+## 💰 Monétisation & conversion — basé sur les données
 
-**Modèle recommandé : Freemium + abonnement (in-app).**
+Le freemium « gentil » (sons gratuits illimités) convertit très mal : les parents
+se contentent du gratuit. D'après **RevenueCat State of Subscription Apps 2025**
+(75 000+ apps) :
 
-- **Gratuit** : 4 ambiances (pluie, cœur maternel, bruit blanc, océan) + minuterie.
-  Assez pour accrocher, frustrant juste ce qu'il faut.
-- **Premium (abonnement)** : tous les sons + mixage illimité.
+- Un **paywall avec essai gratuit dès l'onboarding convertit ~12 %**, soit **5,5×
+  plus** que le freemium (~2 %), et génère **2× la valeur par client**.
+- **82 % des essais démarrent au jour 0** → il faut proposer l'offre tout de suite.
+- Les écrans paywall « format essai » (sélecteur de plans) gagnent dans 64,5 % des tests.
 
-### Tarification conseillée
-- **Essai gratuit 7 jours** puis **~19,99 €/an** (mis en avant) — meilleur revenu/utilisateur.
-- Option **hebdomadaire ~4,99 €/sem** pour capter les achats impulsifs.
-- (Optionnel) **achat à vie ~29,99 €** pour les réfractaires à l'abonnement.
+### Stratégie implémentée (3 leviers)
+
+1. **Sessions gratuites limitées à 30 min.** Le bénéfice clé « joue toute la nuit »
+   devient une vraie raison de payer. Le son s'estompe en douceur puis le paywall
+   s'ouvre (`FREE_SESSION_SECONDS` dans `AudioManager.ts`). Message clair côté UI
+   pour éviter l'effet « bug ».
+2. **Paywall d'essai présenté juste après l'onboarding** (jour 0), une seule fois.
+3. **Paywall haute conversion** : sélecteur 3 plans, plan annuel mis en avant avec
+   badge « 7 jours offerts », preuve sociale, et **messages contextualisés** selon
+   le déclencheur (fin de session, son verrouillé, bouton premium).
+
+### Tarification (positionnée pour gagner des parts)
+Les leaders : Hatch **49,99 $/an**, BetterSleep **59,99 $/an** (essai 7 j). On se
+positionne dessous :
+
+| Plan | Prix | Rôle |
+| --- | --- | --- |
+| Annuel **(mis en avant)** | **29,99 €/an, 7 j offerts** | Meilleur revenu/client |
+| Hebdomadaire | 4,99 €/sem | Achat d'impulsion |
+| À vie | 49,99 € | Rassure les anti-abonnement |
+
+Modifiable dans `src/billing/purchases.ts` (`FALLBACK_PLANS`).
 
 ### Comment encaisser (in-app, multiplateforme)
 On utilise **RevenueCat** (`react-native-purchases`) : un seul SDK gère **Google
@@ -51,20 +72,20 @@ Play ET l'App Store**, l'essai gratuit, la restauration et le statut d'abonnemen
 
 > ⚠️ Les achats in-app **ne marchent pas dans Expo Go** (module natif). Dans Expo Go,
 > le bouton premium débloque l'app en *mode démo* pour tester l'interface. Pour la
-> vraie facturation il faut un **development build** (`npx expo run:android`) ou un
-> build **EAS**.
+> vraie facturation il faut un **development build** (`npx expo run:android`) ou EAS.
 
 Étapes de mise en production (voir `src/billing/purchases.ts`) :
 1. `npm install react-native-purchases`
 2. Renseigner les clés RevenueCat (iOS + Android).
-3. Créer l'abonnement dans la Play Console / App Store Connect.
-4. Lier l'« entitlement » `premium` dans RevenueCat.
-5. Builder avec **EAS** (`eas build`).
+3. Créer 3 produits (hebdo / annuel avec essai / à vie) dans la Play Console et
+   l'App Store Connect, puis une **Offering** RevenueCat avec les packages
+   `$rc_weekly`, `$rc_annual`, `$rc_lifetime` liés à l'entitlement `premium`.
+4. Builder avec **EAS** (`eas build`).
 
-### Conversion (déjà intégré)
-- **Onboarding** en 3 écrans qui vend les bénéfices (dont « sans pub », « toute la nuit »).
-- **Paywall** avec essai gratuit mis en avant, liste de bénéfices, prix annuel discret.
-- Cadenas 🔒 sur les sons premium → ouverture du paywall au tap (déclencheur naturel).
+### Pour aller plus loin (recommandé)
+- **A/B teste le paywall** (RevenueCat Experiments) : les équipes qui testent font
+  jusqu'à 40× plus de revenus.
+- Teste 30 min vs 15 min de session gratuite, et l'annuel à 29,99 € vs 39,99 €.
 
 ## 🏗️ Architecture
 

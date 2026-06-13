@@ -14,13 +14,14 @@ import { AudioManager } from '../audio/AudioManager';
 import { SOUNDS, Sound } from '../audio/sounds';
 import { useAudio } from '../audio/useAudio';
 import { Chip, NightBackground } from '../components/ui';
+import { PaywallReason } from './PaywallScreen';
 import { theme } from '../theme';
 
 type Props = {
   premium: boolean;
   batteryTipDismissed: boolean;
   onDismissBatteryTip: () => void;
-  onOpenPaywall: () => void;
+  onOpenPaywall: (reason: PaywallReason) => void;
 };
 
 export function HomeScreen({
@@ -35,7 +36,7 @@ export function HomeScreen({
 
   const onTap = (sound: Sound) => {
     if (sound.premium && !premium) {
-      onOpenPaywall();
+      onOpenPaywall('locked');
       return;
     }
     AudioManager.toggleSound(sound.id);
@@ -53,9 +54,16 @@ export function HomeScreen({
                 ? 'Touchez un son pour démarrer'
                 : `${activeCount} son${activeCount > 1 ? 's' : ''} en lecture`}
             </Text>
+            {!premium && activeCount > 0 && (
+              <Pressable onPress={() => onOpenPaywall('limit')}>
+                <Text style={styles.freeNote}>
+                  Aperçu gratuit · sessions de 30 min — débloquez toute la nuit
+                </Text>
+              </Pressable>
+            )}
           </View>
           {!premium && (
-            <Pressable style={styles.premiumPill} onPress={onOpenPaywall}>
+            <Pressable style={styles.premiumPill} onPress={() => onOpenPaywall('manual')}>
               <Text style={styles.premiumPillText}>✨ Premium</Text>
             </Pressable>
           )}
@@ -240,6 +248,7 @@ const styles = StyleSheet.create({
   },
   appName: { color: theme.colors.textPrimary, fontSize: 24, fontWeight: '700' },
   subtitle: { color: theme.colors.textSecondary, fontSize: 14, marginTop: 2 },
+  freeNote: { color: theme.colors.moon, fontSize: 12, marginTop: 4, fontWeight: '600' },
   premiumPill: {
     backgroundColor: 'rgba(255,233,168,0.15)',
     paddingHorizontal: 16,

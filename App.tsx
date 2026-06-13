@@ -6,14 +6,14 @@ import { useAudio } from './src/audio/useAudio';
 import { initPurchases, isPremiumActive } from './src/billing/purchases';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
-import { PaywallScreen } from './src/screens/PaywallScreen';
+import { PaywallReason, PaywallScreen } from './src/screens/PaywallScreen';
 import { usePrefs } from './src/store/usePrefs';
 import { theme } from './src/theme';
 
 export default function App() {
   const prefs = usePrefs();
-  const { mix } = useAudio();
-  const [showPaywall, setShowPaywall] = useState(false);
+  const { mix, freeLimitHit } = useAudio();
+  const [paywall, setPaywall] = useState<PaywallReason | null>(null);
   const [restored, setRestored] = useState(false);
 
   // Init audio + facturation au démarrage.
@@ -26,6 +26,11 @@ export default function App() {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Synchronise le statut premium avec le moteur (supprime la limite de session).
+  useEffect(() => {
+    AudioManager.setPremium(prefs.premium);
+  }, [prefs.premium]);
 
   // Restaure le dernier mix une fois les préférences chargées.
   useEffect(() => {
@@ -44,6 +49,25 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mix, restored]);
 
+  // Conversion : présente l'essai gratuit juste après l'onboarding (jour 0,
+  // configuration la plus performante d'après RevenueCat SOSA 2025).
+  useEffect(() => {
+    if (prefs.ready && prefs.onboardingDone && !prefs.seenIntroPaywall && !prefs.premium) {
+      setPaywall('intro');
+      prefs.setSeenIntroPaywall();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefs.ready, prefs.onboardingDone, prefs.seenIntroPaywall, prefs.premium]);
+
+  // Conversion : la session gratuite a expiré -> paywall contextualisé.
+  useEffect(() => {
+    if (freeLimitHit && !prefs.premium) {
+      setPaywall('limit');
+      AudioManager.acknowledgeFreeLimit();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [freeLimitHit, prefs.premium]);
+
   if (!prefs.ready) {
     return <View style={{ flex: 1, backgroundColor: theme.colors.night }} />;
   }
@@ -51,14 +75,15 @@ export default function App() {
   let screen: React.ReactNode;
   if (!prefs.onboardingDone) {
     screen = <OnboardingScreen onFinish={prefs.setOnboardingDone} />;
-  } else if (showPaywall) {
+  } else if (paywall) {
     screen = (
       <PaywallScreen
+        reason={paywall}
         onPremium={() => {
           prefs.setPremium(true);
-          setShowPaywall(false);
+          setPaywall(null);
         }}
-        onClose={() => setShowPaywall(false)}
+        onClose={() => setPaywall(null)}
       />
     );
   } else {
@@ -67,7 +92,7 @@ export default function App() {
         premium={prefs.premium}
         batteryTipDismissed={prefs.batteryTipDismissed}
         onDismissBatteryTip={prefs.dismissBatteryTip}
-        onOpenPaywall={() => setShowPaywall(true)}
+        onOpenPaywall={(reason) => setPaywall(reason)}
       />
     );
   }

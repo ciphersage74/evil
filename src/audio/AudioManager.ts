@@ -6,12 +6,19 @@ export type AudioState = {
   mix: Record<string, number>; // id du son -> volume individuel (0..1)
   isPlaying: boolean;
   timerRemaining: number; // secondes restantes (0 = minuterie off)
+  /** true quand la session gratuite vient d'expirer -> déclenche le paywall. */
+  freeLimitHit: boolean;
 };
 
 type Listener = (state: AudioState) => void;
 
 const FADE_MS = 8000; // fondu de sortie de la minuterie (ne réveille pas bébé)
 const FADE_STEP_MS = 100;
+
+// Levier de conversion : les utilisateurs gratuits ont des sessions limitées.
+// Le bénéfice clé "joue toute la nuit" devient une raison concrète de passer
+// premium (modèle prouvé : les paywalls à essai convertissent ~5x le freemium).
+const FREE_SESSION_SECONDS = 30 * 60;
 
 /**
  * Source de vérité de la lecture. Singleton qui pilote expo-av :
@@ -23,11 +30,32 @@ const FADE_STEP_MS = 100;
 class AudioManagerImpl {
   private sounds = new Map<string, Audio.Sound>();
   private listeners = new Set<Listener>();
-  private state: AudioState = { mix: {}, isPlaying: false, timerRemaining: 0 };
+  private state: AudioState = {
+    mix: {},
+    isPlaying: false,
+    timerRemaining: 0,
+    freeLimitHit: false,
+  };
   private master = 1;
   private timerHandle: ReturnType<typeof setInterval> | null = null;
   private fadeHandle: ReturnType<typeof setInterval> | null = null;
+  private freeSessionHandle: ReturnType<typeof setTimeout> | null = null;
+  private premium = false;
   private initialized = false;
+
+  /** Renseigné par l'app : les premium n'ont aucune limite de session. */
+  setPremium(value: boolean) {
+    this.premium = value;
+    if (value) {
+      this.clearFreeSession();
+      if (this.state.freeLimitHit) this.emit({ freeLimitHit: false });
+    }
+  }
+
+  /** L'UI appelle ceci après avoir traité la fin de session (ouverture paywall). */
+  acknowledgeFreeLimit() {
+    if (this.state.freeLimitHit) this.emit({ freeLimitHit: false });
+  }
 
   async init() {
     if (this.initialized) return;
@@ -94,6 +122,7 @@ class AudioManagerImpl {
       this.sounds.set(id, sound);
       this.emit({ mix: { ...this.state.mix, [id]: volume }, isPlaying: true });
       await activateKeepAwakeAsync('playback');
+      this.startFreeSession();
     } catch (e) {
       console.warn('addSound failed', id, e);
     }
@@ -121,10 +150,12 @@ class AudioManagerImpl {
     await Promise.all([...this.sounds.values()].map((s) => s.playAsync().catch(() => {})));
     await activateKeepAwakeAsync('playback');
     this.emit({ isPlaying: true });
+    this.startFreeSession();
   }
 
   async pause() {
     this.cleanupTimers();
+    this.clearFreeSession();
     await Promise.all([...this.sounds.values()].map((s) => s.pauseAsync().catch(() => {})));
     deactivateKeepAwake('playback');
     this.emit({ isPlaying: false });
@@ -137,6 +168,7 @@ class AudioManagerImpl {
 
   async stopAll() {
     this.cleanupTimers();
+    this.clearFreeSession();
     await Promise.all(
       [...this.sounds.values()].map(async (s) => {
         await s.stopAsync().catch(() => {});
@@ -169,6 +201,7 @@ class AudioManagerImpl {
     }
     await activateKeepAwakeAsync('playback');
     this.emit({ mix, isPlaying: true });
+    this.startFreeSession();
   }
 
   // ---- Minuterie de sommeil ------------------------------------------------
@@ -193,7 +226,7 @@ class AudioManagerImpl {
     }, 1000);
   }
 
-  private fadeOutAndPause() {
+  private fadeOutAndPause(onDone?: () => void) {
     let level = 1;
     const decrement = FADE_STEP_MS / FADE_MS;
     this.fadeHandle = setInterval(() => {
@@ -203,10 +236,31 @@ class AudioManagerImpl {
         this.fadeHandle = null;
         this.pause();
         this.setMaster(1); // réinitialise pour la prochaine lecture
+        onDone?.();
       } else {
         this.setMaster(level);
       }
     }, FADE_STEP_MS);
+  }
+
+  // ---- Session gratuite limitée (levier de conversion) ---------------------
+
+  private startFreeSession() {
+    if (this.premium) return;
+    if (this.freeSessionHandle != null) return; // déjà en cours
+    if (this.state.freeLimitHit) this.emit({ freeLimitHit: false });
+    this.freeSessionHandle = setTimeout(() => {
+      this.freeSessionHandle = null;
+      // Fondu doux (ne réveille pas bébé) puis signale au paywall.
+      this.fadeOutAndPause(() => this.emit({ freeLimitHit: true }));
+    }, FREE_SESSION_SECONDS * 1000);
+  }
+
+  private clearFreeSession() {
+    if (this.freeSessionHandle != null) {
+      clearTimeout(this.freeSessionHandle);
+      this.freeSessionHandle = null;
+    }
   }
 
   private setMaster(level: number) {
