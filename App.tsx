@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { AudioManager } from './src/audio/AudioManager';
 import { useAudio } from './src/audio/useAudio';
-import { initPurchases, isPremiumActive } from './src/billing/purchases';
+import { initPurchases, isPremiumActive, restorePurchases } from './src/billing/purchases';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import { PaywallReason, PaywallScreen } from './src/screens/PaywallScreen';
@@ -99,6 +99,10 @@ export default function App() {
         batteryTipDismissed={prefs.batteryTipDismissed}
         onDismissBatteryTip={prefs.dismissBatteryTip}
         onOpenPaywall={(reason) => setPaywall(reason)}
+        onRestore={async () => {
+          const ok = await restorePurchases();
+          if (ok) prefs.setPremium(true);
+        }}
       />
     );
   }

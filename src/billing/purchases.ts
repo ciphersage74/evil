@@ -18,7 +18,7 @@
  *      correspondent à PLAN_PACKAGE_ID, liés à un entitlement "premium"
  *   4) builder avec EAS (pas Expo Go)
  */
-import { Platform } from 'react-native';
+import { Linking, Platform } from 'react-native';
 
 const REVENUECAT_API_KEY = {
   ios: 'appl_XXXXXXXXXXXXXXXXXXXX',
@@ -171,6 +171,19 @@ export async function purchasePlan(planId: PlanId): Promise<boolean> {
     // Annulation utilisateur ou erreur réseau.
     return false;
   }
+}
+
+/**
+ * Ouvre la page de gestion des abonnements du store, où l'utilisateur peut
+ * résilier. Obligatoire (politiques Google Play / Apple) et rassure les parents
+ * — évite les avis « impossible de se désabonner ».
+ */
+export async function openManageSubscriptions(packageName = 'com.dreamdrops.babysleep'): Promise<void> {
+  const url =
+    Platform.OS === 'ios'
+      ? 'https://apps.apple.com/account/subscriptions'
+      : `https://play.google.com/store/account/subscriptions?package=${packageName}`;
+  await Linking.openURL(url).catch(() => {});
 }
 
 export async function restorePurchases(): Promise<boolean> {

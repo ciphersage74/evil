@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { NightBackground, PrimaryButton } from '../components/ui';
 import {
   Plan,
@@ -158,6 +158,22 @@ export function PaywallScreen({
         <Pressable onPress={restore} style={styles.restore}>
           <Text style={styles.restoreText}>Restaurer l'achat</Text>
         </Pressable>
+
+        <View style={styles.legalRow}>
+          <Text
+            style={styles.legalLink}
+            onPress={() => Linking.openURL('https://dreamdrops.app/privacy').catch(() => {})}
+          >
+            Confidentialité
+          </Text>
+          <Text style={styles.legalDot}>·</Text>
+          <Text
+            style={styles.legalLink}
+            onPress={() => Linking.openURL('https://dreamdrops.app/terms').catch(() => {})}
+          >
+            Conditions
+          </Text>
+        </View>
       </ScrollView>
     </NightBackground>
   );
@@ -249,4 +265,7 @@ const styles = StyleSheet.create({
   },
   restore: { marginTop: 14, alignItems: 'center', padding: 8 },
   restoreText: { color: theme.colors.lavender, fontSize: 15 },
+  legalRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 6 },
+  legalLink: { color: theme.colors.textSecondary, fontSize: 12 },
+  legalDot: { color: theme.colors.textSecondary, fontSize: 12 },
 });

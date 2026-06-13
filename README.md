@@ -105,6 +105,15 @@ Play ET l'App Store**, l'essai gratuit, la restauration et le statut d'abonnemen
    `$rc_weekly`, `$rc_annual`, `$rc_lifetime` liés à l'entitlement `premium`.
 4. Builder avec **EAS** (`eas build`).
 
+### Conformité stores (déjà en place)
+- **Gérer / résilier l'abonnement** : bouton dans ⚙️ Réglages qui ouvre la page
+  d'abonnements du store (Play Store sur Android, App Store sur iPhone) — obligatoire
+  et évite les avis « impossible de se désabonner ».
+- **Restaurer mes achats** : dans Réglages et sur le paywall.
+- **Liens Confidentialité / Conditions** : sur le paywall et dans Réglages.
+  ⚠️ Remplace les URLs `https://dreamdrops.app/...` (dans `HomeScreen.tsx` et
+  `PaywallScreen.tsx`) par tes vraies pages avant publication.
+
 ### Pour aller plus loin (recommandé)
 - **A/B teste le paywall** (RevenueCat Experiments) : les équipes qui testent font
   jusqu'à 40× plus de revenus.

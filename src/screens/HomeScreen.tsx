@@ -14,17 +14,23 @@ import {
   View,
 } from 'react-native';
 import { AudioManager, SAFE_VOLUME_MAX } from '../audio/AudioManager';
+import { openManageSubscriptions } from '../billing/purchases';
 import { SOUNDS, Sound } from '../audio/sounds';
 import { useAudio } from '../audio/useAudio';
 import { Chip, NightBackground } from '../components/ui';
 import { PaywallReason } from './PaywallScreen';
 import { theme } from '../theme';
 
+// À remplacer par vos vraies URLs avant publication (requis par les stores).
+const PRIVACY_URL = 'https://dreamdrops.app/privacy';
+const TERMS_URL = 'https://dreamdrops.app/terms';
+
 type Props = {
   premium: boolean;
   batteryTipDismissed: boolean;
   onDismissBatteryTip: () => void;
   onOpenPaywall: (reason: PaywallReason) => void;
+  onRestore: () => void;
 };
 
 export function HomeScreen({
@@ -32,10 +38,12 @@ export function HomeScreen({
   batteryTipDismissed,
   onDismissBatteryTip,
   onOpenPaywall,
+  onRestore,
 }: Props) {
   const { mix, isPlaying, timerRemaining, volume } = useAudio();
   const [showTimer, setShowTimer] = useState(false);
   const [showSafety, setShowSafety] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const activeCount = Object.keys(mix).length;
 
   const onTap = (sound: Sound) => {
@@ -71,6 +79,9 @@ export function HomeScreen({
               <Text style={styles.premiumPillText}>✨ Premium</Text>
             </Pressable>
           )}
+          <Pressable style={styles.gear} onPress={() => setShowSettings(true)} hitSlop={8}>
+            <Text style={styles.gearIcon}>⚙️</Text>
+          </Pressable>
         </View>
 
         {/* Conseil batterie : corrige "le son s'arrête la nuit" */}
@@ -129,7 +140,93 @@ export function HomeScreen({
       />
 
       <SafetyModal visible={showSafety} onClose={() => setShowSafety(false)} />
+
+      <SettingsModal
+        visible={showSettings}
+        premium={premium}
+        onClose={() => setShowSettings(false)}
+        onRestore={() => {
+          onRestore();
+          setShowSettings(false);
+        }}
+        onSafety={() => {
+          setShowSettings(false);
+          setShowSafety(true);
+        }}
+      />
     </NightBackground>
+  );
+}
+
+function SettingsModal({
+  visible,
+  premium,
+  onClose,
+  onRestore,
+  onSafety,
+}: {
+  visible: boolean;
+  premium: boolean;
+  onClose: () => void;
+  onRestore: () => void;
+  onSafety: () => void;
+}) {
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <Pressable style={styles.modalBackdrop} onPress={onClose} />
+      <View style={styles.sheet}>
+        <Text style={styles.sheetTitle}>Réglages</Text>
+
+        {premium && (
+          <SettingsRow
+            icon="💳"
+            title="Gérer / résilier l'abonnement"
+            subtitle="Ouvre vos abonnements dans le store"
+            onPress={() => {
+              openManageSubscriptions();
+              onClose();
+            }}
+          />
+        )}
+        <SettingsRow icon="🔄" title="Restaurer mes achats" onPress={onRestore} />
+        <SettingsRow icon="👶" title="Sommeil sûr — conseils pédiatres" onPress={onSafety} />
+        <SettingsRow
+          icon="🔒"
+          title="Politique de confidentialité"
+          onPress={() => Linking.openURL(PRIVACY_URL).catch(() => {})}
+        />
+        <SettingsRow
+          icon="📄"
+          title="Conditions d'utilisation"
+          onPress={() => Linking.openURL(TERMS_URL).catch(() => {})}
+        />
+        <Text style={styles.version}>DreamDrops v1.0.0</Text>
+        <View style={{ height: 16 }} />
+      </View>
+    </Modal>
+  );
+}
+
+function SettingsRow({
+  icon,
+  title,
+  subtitle,
+  onPress,
+}: {
+  icon: string;
+  title: string;
+  subtitle?: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable style={styles.settingsRow} onPress={onPress}>
+      <Text style={styles.settingsIcon}>{icon}</Text>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.settingsTitle}>{title}</Text>
+        {subtitle && <Text style={styles.settingsSub}>{subtitle}</Text>}
+      </View>
+      <Text style={styles.settingsChevron}>›</Text>
+    </Pressable>
   );
 }
 
@@ -413,6 +510,21 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   premiumPillText: { color: theme.colors.moon, fontWeight: '600' },
+  gear: { marginLeft: 10, padding: 4 },
+  gearIcon: { fontSize: 20 },
+  settingsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.surfaceVariant,
+  },
+  settingsIcon: { fontSize: 20 },
+  settingsTitle: { color: theme.colors.textPrimary, fontSize: 15, fontWeight: '600' },
+  settingsSub: { color: theme.colors.textSecondary, fontSize: 12, marginTop: 2 },
+  settingsChevron: { color: theme.colors.textSecondary, fontSize: 22 },
+  version: { color: theme.colors.textSecondary, fontSize: 12, textAlign: 'center', marginTop: 16 },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
