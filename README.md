@@ -54,17 +54,20 @@ se contentent du gratuit. D'après **RevenueCat State of Subscription Apps 2025*
    badge « 7 jours offerts », preuve sociale, et **messages contextualisés** selon
    le déclencheur (fin de session, son verrouillé, bouton premium).
 
-### Tarification (positionnée pour gagner des parts)
-Les leaders : Hatch **49,99 $/an**, BetterSleep **59,99 $/an** (essai 7 j). On se
+### Tarification — pensée pour des revenus récurrents CHAQUE MOIS
+Les leaders : Hatch **49,99 $/an**, BetterSleep **9,99 $/mois · 59,99 $/an**. On se
 positionne dessous :
 
 | Plan | Prix | Rôle |
 | --- | --- | --- |
-| Annuel **(mis en avant)** | **29,99 €/an, 7 j offerts** | Meilleur revenu/client |
-| Hebdomadaire | 4,99 €/sem | Achat d'impulsion |
-| À vie | 49,99 € | Rassure les anti-abonnement |
+| **Mensuel** | **6,99 €/mois** | **Revenus récurrents réguliers (MRR)** |
+| Annuel **(mis en avant)** | 34,99 €/an, 7 j offerts | Meilleure conversion + rétention, encaissé d'avance |
+| À vie | 59,99 € | Rassure les anti-abonnement |
 
-Modifiable dans `src/billing/purchases.ts` (`FALLBACK_PLANS`).
+> 💡 **Pour un revenu mensuel stable**, le plan mensuel donne du cash chaque mois ;
+> l'annuel (mis en avant) maximise la conversion et la valeur par client. Le mix des
+> deux = MRR régulier **et** trésorerie. Modifiable dans `src/billing/purchases.ts`
+> (`FALLBACK_PLANS`).
 
 ### Comment encaisser (in-app, multiplateforme)
 On utilise **RevenueCat** (`react-native-purchases`) : un seul SDK gère **Google
@@ -90,19 +93,38 @@ Play ET l'App Store**, l'essai gratuit, la restauration et le statut d'abonnemen
 ## 🏗️ Architecture
 
 ```
-App.tsx                      Routage onboarding / home / paywall + persistance
+App.tsx                      Routage welcome / onboarding / home / paywall + persistance
 src/
   audio/
     sounds.ts                Catalogue (require des .wav)
-    AudioManager.ts          Lecture, mixage, volume maître, minuterie, arrière-plan
+    AudioManager.ts          Lecture, mixage, volume maître, minuterie, arrière-plan, limite gratuite
     useAudio.ts              Hook d'état (useSyncExternalStore)
-  billing/purchases.ts       Abonnement RevenueCat (repli mode démo)
+  billing/purchases.ts       Abonnements RevenueCat (mensuel/annuel/à vie, repli démo)
   store/usePrefs.ts          Préférences (AsyncStorage)
-  screens/                   Onboarding, Home, Paywall
+  screens/                   Welcome (animé), Onboarding, Home, Paywall
   components/ui.tsx          Composants partagés (boutons, fond, chips)
+  components/StarField.tsx   Fond d'étoiles scintillantes animé
   theme.ts                   Couleurs / espacements
 assets/sounds/*.wav          Ambiances générées (libres de droits)
 tools/generate_*.py          Générateurs de sons et d'icônes (Python pur)
+```
+
+## 🎨 Design
+
+- **Écran de bienvenue animé** (logo, lueur qui respire, étoiles scintillantes, fondu).
+- Thème nocturne cohérent, dégradés, fond étoilé partagé welcome/onboarding.
+- Bouton lecture avec halo « respirant » quand le son joue.
+- Paywall premium avec sélecteur de plans et preuve sociale.
+
+## 🚀 Publier (EAS Build)
+
+```bash
+npm install -g eas-cli
+eas login
+eas build:configure        # déjà préconfiguré dans eas.json
+eas build -p android --profile production
+eas build -p ios --profile production
+eas submit -p android      # envoi au Play Store
 ```
 
 ## 🔊 Remplacer les sons
@@ -111,8 +133,9 @@ Les `.wav` sont générés (synthèse, libres de droits). Pour des sons « réel
 remplace les fichiers dans `assets/sounds/` (garde les mêmes noms) par des samples
 **libres de droits** bien bouclés (Pixabay, Freesound CC0…). Garde `isLooping`.
 
-## ✅ État
+## ✅ État (contrôlé — zéro erreur)
 
 - TypeScript : `npx tsc --noEmit` ✅
-- Bundle Metro Android : ✅ (598 modules, 10 assets)
+- ESLint (`eslint-config-expo`) : `npx eslint App.tsx "src/**/*.{ts,tsx}"` ✅ (0 erreur, 0 warning)
+- Bundle Metro **Android + iOS** : ✅
 - Testable immédiatement dans **Expo Go**.

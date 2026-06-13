@@ -77,17 +77,24 @@ export function PaywallScreen({
     if (ok) onPremium();
   };
 
-  const ctaLabel = current?.trialDays
-    ? `Démarrer l'essai gratuit de ${current.trialDays} jours`
-    : 'Continuer';
+  const periodWord = (p: Plan['period']) =>
+    p === 'week' ? 'semaine' : p === 'month' ? 'mois' : p === 'year' ? 'an' : '';
+
+  const ctaLabel = !current
+    ? 'Continuer'
+    : current.trialDays
+      ? `Démarrer l'essai gratuit de ${current.trialDays} jours`
+      : current.period === 'once'
+        ? 'Débloquer à vie'
+        : 'S\'abonner';
 
   const terms = !current
     ? ''
     : current.trialDays
-      ? `${current.trialDays} jours gratuits, puis ${current.price}/an. Annulable à tout moment.`
-      : current.id === 'lifetime'
+      ? `${current.trialDays} jours gratuits, puis ${current.price}/${periodWord(current.period)}. Annulable à tout moment.`
+      : current.period === 'once'
         ? `Paiement unique de ${current.price}.`
-        : `${current.price}/semaine. Annulable à tout moment.`;
+        : `${current.price}/${periodWord(current.period)}. Annulable à tout moment.`;
 
   return (
     <NightBackground>

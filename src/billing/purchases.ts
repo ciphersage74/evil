@@ -26,7 +26,7 @@ const REVENUECAT_API_KEY = {
 };
 const ENTITLEMENT_ID = 'premium';
 
-export type PlanId = 'weekly' | 'annual' | 'lifetime';
+export type PlanId = 'monthly' | 'annual' | 'lifetime';
 
 export type Plan = {
   id: PlanId;
@@ -34,40 +34,45 @@ export type Plan = {
   packageId: string;
   title: string;
   price: string;
-  /** Détail sous le prix (ex. "soit 0,58 €/semaine"). */
+  /** Détail sous le prix (ex. "soit 2,92 €/mois"). */
   caption: string;
+  /** Sert à formuler les conditions (".../mois", ".../an", paiement unique). */
+  period: 'week' | 'month' | 'year' | 'once';
   badge?: string;
   trialDays?: number;
   highlighted?: boolean;
 };
 
 const PLAN_PACKAGE_ID: Record<PlanId, string> = {
-  weekly: '$rc_weekly',
+  monthly: '$rc_monthly',
   annual: '$rc_annual',
   lifetime: '$rc_lifetime',
 };
 
 /**
  * Prix par défaut (mode démo / repli).
- * Pensés pour la conversion : l'annuel avec essai gratuit est mis en avant,
- * positionné sous les leaders (Hatch 49,99 $/an, BetterSleep 59,99 $/an) pour
- * gagner des parts ; l'hebdomadaire capte l'impulsion ; le "à vie" rassure les
- * réfractaires à l'abonnement.
+ * Pensés pour des REVENUS RÉCURRENTS CHAQUE MOIS tout en maximisant la conversion :
+ *  - Mensuel : génère du chiffre d'affaires régulier (MRR) tous les mois.
+ *  - Annuel (mis en avant, essai 7 j) : meilleure conversion + rétention, encaissé
+ *    d'avance — positionné SOUS les leaders (Hatch 49,99 $/an, BetterSleep 59,99 $/an).
+ *  - À vie : rassure les réfractaires à l'abonnement.
  */
 const FALLBACK_PLANS: Plan[] = [
   {
-    id: 'weekly',
-    packageId: PLAN_PACKAGE_ID.weekly,
-    title: 'Hebdomadaire',
-    price: '4,99 €',
-    caption: 'Facturé chaque semaine',
+    id: 'monthly',
+    packageId: PLAN_PACKAGE_ID.monthly,
+    title: 'Mensuel',
+    price: '6,99 €',
+    caption: 'Facturé chaque mois',
+    period: 'month',
   },
   {
     id: 'annual',
     packageId: PLAN_PACKAGE_ID.annual,
     title: 'Annuel',
-    price: '29,99 €',
-    caption: 'soit 0,58 €/semaine — 88 % d\'économie',
+    price: '34,99 €',
+    caption: 'soit 2,92 €/mois — 58 % d\'économie',
+    period: 'year',
     badge: 'MEILLEURE OFFRE · 7 JOURS OFFERTS',
     trialDays: 7,
     highlighted: true,
@@ -76,8 +81,9 @@ const FALLBACK_PLANS: Plan[] = [
     id: 'lifetime',
     packageId: PLAN_PACKAGE_ID.lifetime,
     title: 'À vie',
-    price: '49,99 €',
+    price: '59,99 €',
     caption: 'Paiement unique, pour toujours',
+    period: 'once',
   },
 ];
 

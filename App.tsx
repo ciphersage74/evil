@@ -7,6 +7,7 @@ import { initPurchases, isPremiumActive } from './src/billing/purchases';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import { PaywallReason, PaywallScreen } from './src/screens/PaywallScreen';
+import { WelcomeScreen } from './src/screens/WelcomeScreen';
 import { usePrefs } from './src/store/usePrefs';
 import { theme } from './src/theme';
 
@@ -14,6 +15,7 @@ export default function App() {
   const prefs = usePrefs();
   const { mix, freeLimitHit } = useAudio();
   const [paywall, setPaywall] = useState<PaywallReason | null>(null);
+  const [welcomed, setWelcomed] = useState(false);
   const [restored, setRestored] = useState(false);
 
   // Init audio + facturation au démarrage.
@@ -74,7 +76,11 @@ export default function App() {
 
   let screen: React.ReactNode;
   if (!prefs.onboardingDone) {
-    screen = <OnboardingScreen onFinish={prefs.setOnboardingDone} />;
+    screen = welcomed ? (
+      <OnboardingScreen onFinish={prefs.setOnboardingDone} />
+    ) : (
+      <WelcomeScreen onStart={() => setWelcomed(true)} />
+    );
   } else if (paywall) {
     screen = (
       <PaywallScreen

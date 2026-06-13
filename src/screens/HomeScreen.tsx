@@ -1,6 +1,8 @@
 import Slider from '@react-native-community/slider';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
+  Animated,
+  Easing,
   Linking,
   Modal,
   Platform,
@@ -97,13 +99,11 @@ export function HomeScreen({
             </Text>
           </Pressable>
 
-          <Pressable
-            style={[styles.playBtn, activeCount === 0 && styles.playBtnDisabled]}
-            disabled={activeCount === 0}
+          <PlayControl
+            isPlaying={isPlaying}
+            enabled={activeCount > 0}
             onPress={() => AudioManager.togglePlay()}
-          >
-            <Text style={styles.playIcon}>{isPlaying ? '❚❚' : '▶'}</Text>
-          </Pressable>
+          />
 
           <View style={{ width: 56 }} />
         </View>
@@ -162,6 +162,53 @@ function SoundCard({
         />
       )}
     </Pressable>
+  );
+}
+
+function PlayControl({
+  isPlaying,
+  enabled,
+  onPress,
+}: {
+  isPlaying: boolean;
+  enabled: boolean;
+  onPress: () => void;
+}) {
+  const pulse = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (isPlaying) {
+      const loop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulse, { toValue: 1, duration: 1600, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+          Animated.timing(pulse, { toValue: 0, duration: 1600, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        ]),
+      );
+      loop.start();
+      return () => loop.stop();
+    }
+    pulse.setValue(0);
+  }, [isPlaying, pulse]);
+
+  const glowScale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.7] });
+  const glowOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0] });
+
+  return (
+    <View style={styles.playWrap}>
+      {isPlaying && (
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.playGlow, { opacity: glowOpacity, transform: [{ scale: glowScale }] }]}
+        />
+      )}
+      <Pressable
+        style={[styles.playBtn, !enabled && styles.playBtnDisabled]}
+        disabled={!enabled}
+        onPress={onPress}
+      >
+        <Text style={styles.playIcon}>{isPlaying ? '❚❚' : '▶'}</Text>
+      </Pressable>
+    </View>
   );
 }
 
@@ -289,6 +336,14 @@ const styles = StyleSheet.create({
   timerBtn: { alignItems: 'center', width: 56 },
   timerIcon: { fontSize: 22 },
   timerLabel: { color: theme.colors.textSecondary, fontSize: 12, marginTop: 2 },
+  playWrap: { width: 76, height: 76, alignItems: 'center', justifyContent: 'center' },
+  playGlow: {
+    position: 'absolute',
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: theme.colors.lavender,
+  },
   playBtn: {
     width: 76,
     height: 76,

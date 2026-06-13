@@ -8,6 +8,7 @@ import {
   ViewToken,
 } from 'react-native';
 import { NightBackground, PrimaryButton } from '../components/ui';
+import { StarField } from '../components/StarField';
 import { theme } from '../theme';
 
 const { width } = Dimensions.get('window');
@@ -46,6 +47,7 @@ export function OnboardingScreen({ onFinish }: { onFinish: () => void }) {
 
   return (
     <NightBackground>
+      <StarField count={18} />
       <View style={styles.root}>
         <FlatList
           ref={listRef}
