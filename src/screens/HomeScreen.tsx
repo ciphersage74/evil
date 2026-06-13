@@ -59,7 +59,7 @@ export function HomeScreen({
             {!premium && activeCount > 0 && (
               <Pressable onPress={() => onOpenPaywall('limit')}>
                 <Text style={styles.freeNote}>
-                  Aperçu gratuit · sessions de 30 min — débloquez toute la nuit
+                  Aperçu gratuit · sessions de 15 min — débloquez toute la nuit
                 </Text>
               </Pressable>
             )}

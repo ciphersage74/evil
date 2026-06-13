@@ -45,7 +45,7 @@ se contentent du gratuit. D'après **RevenueCat State of Subscription Apps 2025*
 
 ### Stratégie implémentée (3 leviers)
 
-1. **Sessions gratuites limitées à 30 min.** Le bénéfice clé « joue toute la nuit »
+1. **Sessions gratuites limitées à 15 min.** Le bénéfice clé « joue toute la nuit »
    devient une vraie raison de payer. Le son s'estompe en douceur puis le paywall
    s'ouvre (`FREE_SESSION_SECONDS` dans `AudioManager.ts`). Message clair côté UI
    pour éviter l'effet « bug ».
@@ -88,7 +88,7 @@ Play ET l'App Store**, l'essai gratuit, la restauration et le statut d'abonnemen
 ### Pour aller plus loin (recommandé)
 - **A/B teste le paywall** (RevenueCat Experiments) : les équipes qui testent font
   jusqu'à 40× plus de revenus.
-- Teste 30 min vs 15 min de session gratuite, et l'annuel à 29,99 € vs 39,99 €.
+- Teste 15 min vs 10 min de session gratuite, et l'annuel à 34,99 € vs 39,99 €.
 
 ## 🏗️ Architecture
 

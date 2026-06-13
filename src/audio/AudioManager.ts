@@ -18,7 +18,7 @@ const FADE_STEP_MS = 100;
 // Levier de conversion : les utilisateurs gratuits ont des sessions limitées.
 // Le bénéfice clé "joue toute la nuit" devient une raison concrète de passer
 // premium (modèle prouvé : les paywalls à essai convertissent ~5x le freemium).
-const FREE_SESSION_SECONDS = 30 * 60;
+const FREE_SESSION_SECONDS = 15 * 60;
 
 /**
  * Source de vérité de la lecture. Singleton qui pilote expo-av :
