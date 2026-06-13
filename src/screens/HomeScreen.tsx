@@ -10,9 +10,10 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
-import { AudioManager } from '../audio/AudioManager';
+import { AudioManager, SAFE_VOLUME_MAX } from '../audio/AudioManager';
 import { SOUNDS, Sound } from '../audio/sounds';
 import { useAudio } from '../audio/useAudio';
 import { Chip, NightBackground } from '../components/ui';
@@ -32,8 +33,9 @@ export function HomeScreen({
   onDismissBatteryTip,
   onOpenPaywall,
 }: Props) {
-  const { mix, isPlaying, timerRemaining } = useAudio();
+  const { mix, isPlaying, timerRemaining, volume } = useAudio();
   const [showTimer, setShowTimer] = useState(false);
+  const [showSafety, setShowSafety] = useState(false);
   const activeCount = Object.keys(mix).length;
 
   const onTap = (sound: Sound) => {
@@ -90,6 +92,13 @@ export function HomeScreen({
           ))}
         </ScrollView>
 
+        {/* Volume maître avec zone de sécurité auditive (unique sur le marché) */}
+        <MasterVolume
+          volume={volume}
+          onChange={(v) => AudioManager.setUserVolume(v)}
+          onInfo={() => setShowSafety(true)}
+        />
+
         {/* Barre de contrôle */}
         <View style={styles.controls}>
           <Pressable style={styles.timerBtn} onPress={() => setShowTimer(true)}>
@@ -118,7 +127,77 @@ export function HomeScreen({
           setShowTimer(false);
         }}
       />
+
+      <SafetyModal visible={showSafety} onClose={() => setShowSafety(false)} />
     </NightBackground>
+  );
+}
+
+function MasterVolume({
+  volume,
+  onChange,
+  onInfo,
+}: {
+  volume: number;
+  onChange: (v: number) => void;
+  onInfo: () => void;
+}) {
+  const loud = volume > SAFE_VOLUME_MAX;
+  const trackColor = loud ? theme.colors.danger : theme.colors.softBlue;
+  return (
+    <View style={styles.volumeWrap}>
+      <View style={styles.volumeHeader}>
+        <Text style={styles.volumeLabel}>Volume</Text>
+        <Pressable onPress={onInfo} hitSlop={8} style={styles.safeBadge}>
+          <Text style={styles.safeBadgeText}>
+            {loud ? '⚠️ Volume élevé' : '👶 Volume sûr'} · en savoir plus
+          </Text>
+        </Pressable>
+      </View>
+      <Slider
+        minimumValue={0}
+        maximumValue={1}
+        value={volume}
+        onValueChange={onChange}
+        minimumTrackTintColor={trackColor}
+        maximumTrackTintColor={theme.colors.surfaceVariant}
+        thumbTintColor={trackColor}
+      />
+      {loud && (
+        <Text style={styles.volumeWarn}>
+          Éloignez le téléphone d'au moins 2 m du berceau pour protéger l'audition de bébé.
+        </Text>
+      )}
+    </View>
+  );
+}
+
+function SafetyModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <Pressable style={styles.modalBackdrop} onPress={onClose} />
+      <View style={styles.sheet}>
+        <Text style={styles.sheetTitle}>Sommeil sûr 👶</Text>
+        <Text style={styles.sheetSub}>
+          Recommandations des pédiatres (AAP) pour un usage du bruit blanc sans risque
+          pour l'audition de bébé :
+        </Text>
+        <SafetyItem icon="🔉" text="Gardez le volume bas — restez dans la zone « Volume sûr »." />
+        <SafetyItem icon="📏" text="Placez le téléphone à au moins 2 m (7 pieds) du berceau." />
+        <SafetyItem icon="⏱️" text="Limitez la durée : utilisez la minuterie d'endormissement." />
+        <SafetyItem icon="👂" text="Repère simple : vous devez pouvoir parler normalement dans la pièce." />
+        <View style={{ height: 24 }} />
+      </View>
+    </Modal>
+  );
+}
+
+function SafetyItem({ icon, text }: { icon: string; text: string }) {
+  return (
+    <View style={styles.safetyItem}>
+      <Text style={styles.safetyIcon}>{icon}</Text>
+      <Text style={styles.safetyText}>{text}</Text>
+    </View>
   );
 }
 
@@ -250,12 +329,24 @@ function TimerModal({
   onPick: (minutes: number) => void;
 }) {
   const options = [0, 15, 30, 45, 60, 90, 120];
+  const [customOpen, setCustomOpen] = useState(false);
+  const [customValue, setCustomValue] = useState('');
+
+  const startCustom = () => {
+    const minutes = parseInt(customValue, 10);
+    if (!Number.isNaN(minutes) && minutes > 0) {
+      onPick(Math.min(minutes, 720)); // garde-fou : 12 h max
+      setCustomValue('');
+      setCustomOpen(false);
+    }
+  };
+
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.modalBackdrop} onPress={onClose} />
       <View style={styles.sheet}>
         <Text style={styles.sheetTitle}>Minuterie de sommeil</Text>
-        <Text style={styles.sheetSub}>Le son s'estompe en douceur à la fin</Text>
+        <Text style={styles.sheetSub}>Choisissez la durée — le son s'estompe en douceur à la fin</Text>
         <View style={styles.chips}>
           {options.map((m) => (
             <Chip
@@ -265,7 +356,26 @@ function TimerModal({
               onPress={() => onPick(m)}
             />
           ))}
+          <Chip label="Personnalisée" active={customOpen} onPress={() => setCustomOpen((o) => !o)} />
         </View>
+
+        {customOpen && (
+          <View style={styles.customRow}>
+            <TextInput
+              style={styles.customInput}
+              value={customValue}
+              onChangeText={(t) => setCustomValue(t.replace(/[^0-9]/g, ''))}
+              keyboardType="number-pad"
+              placeholder="ex. 75"
+              placeholderTextColor={theme.colors.textSecondary}
+              maxLength={3}
+            />
+            <Text style={styles.customUnit}>min</Text>
+            <Pressable style={styles.customBtn} onPress={startCustom}>
+              <Text style={styles.customBtnText}>Démarrer</Text>
+            </Pressable>
+          </View>
+        )}
       </View>
     </Modal>
   );
@@ -326,6 +436,38 @@ const styles = StyleSheet.create({
   cardLabel: { color: theme.colors.textSecondary, fontSize: 12, textAlign: 'center' },
   lock: { position: 'absolute', top: 8, right: 8, fontSize: 12 },
   slider: { width: '100%', height: 28, marginTop: 4 },
+  volumeWrap: { paddingHorizontal: 24, paddingTop: 4 },
+  volumeHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  volumeLabel: { color: theme.colors.textSecondary, fontSize: 13, fontWeight: '600' },
+  safeBadge: {
+    backgroundColor: theme.colors.surface,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  safeBadgeText: { color: theme.colors.textSecondary, fontSize: 11, fontWeight: '600' },
+  volumeWarn: { color: theme.colors.danger, fontSize: 11, marginTop: 2 },
+  safetyItem: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 7 },
+  safetyIcon: { fontSize: 20 },
+  safetyText: { color: theme.colors.textPrimary, fontSize: 14, flex: 1, lineHeight: 19 },
+  customRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12 },
+  customInput: {
+    flex: 1,
+    backgroundColor: theme.colors.surfaceVariant,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    color: theme.colors.textPrimary,
+    fontSize: 16,
+  },
+  customUnit: { color: theme.colors.textSecondary, fontSize: 14 },
+  customBtn: {
+    backgroundColor: theme.colors.lavender,
+    borderRadius: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+  },
+  customBtnText: { color: theme.colors.night, fontWeight: '700' },
   controls: {
     flexDirection: 'row',
     alignItems: 'center',

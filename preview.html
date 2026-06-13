@@ -151,6 +151,29 @@
 
   .legend { max-width: 760px; margin: 0 auto 36px; background: var(--surface); border-radius: 16px; padding: 20px 24px; color: var(--text2); font-size: 13px; line-height: 1.6; }
   .legend b { color: var(--text); }
+
+  /* Volume maître + sécurité */
+  .vol { padding: 6px 4px 2px; }
+  .vol .vh { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .vol .vl { color: var(--text2); font-size: 12px; font-weight: 600; }
+  .vol .vbadge { background: var(--surface); color: var(--text2); font-size: 10px; font-weight: 600; padding: 4px 9px; border-radius: 11px; }
+  .vbar { height: 5px; border-radius: 3px; background: var(--surface-variant); position: relative; }
+  .vbar .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--soft-blue); }
+  .vbar .knob { position: absolute; top: 50%; width: 14px; height: 14px; border-radius: 50%; background: var(--soft-blue); transform: translate(-50%, -50%); }
+
+  /* Bottom sheet (minuterie / sécurité) */
+  .sheet { background: var(--surface); border-radius: 22px 22px 0 0; padding: 18px 16px 22px; margin-top: auto; }
+  .sheet h3 { font-size: 17px; font-weight: 700; }
+  .sheet .ss { color: var(--text2); font-size: 11.5px; margin: 4px 0 12px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { background: var(--surface-variant); color: var(--text2); font-size: 12px; font-weight: 600; padding: 9px 14px; border-radius: 13px; }
+  .chip.on { background: var(--lavender); color: var(--night); }
+  .crow { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+  .cinput { flex: 1; background: var(--surface-variant); border-radius: 11px; padding: 10px 12px; color: var(--text2); font-size: 14px; }
+  .cgo { background: var(--lavender); color: var(--night); font-weight: 700; font-size: 13px; padding: 10px 16px; border-radius: 11px; }
+  .sitem { display: flex; gap: 11px; align-items: center; margin: 8px 0; }
+  .sitem .si { font-size: 18px; }
+  .sitem .stx { font-size: 12.5px; line-height: 1.4; }
 </style>
 </head>
 <body>
@@ -265,6 +288,11 @@
             <div class="card"><span class="lock">🔒</span><div class="ce">💧</div><div class="cl">Forest Stream</div></div>
           </div>
 
+          <div class="vol">
+            <div class="vh"><span class="vl">Volume</span><span class="vbadge">👶 Volume sûr · en savoir plus</span></div>
+            <div class="vbar"><div class="fill" style="width:48%"></div><div class="knob" style="left:48%"></div></div>
+          </div>
+
           <div class="controls">
             <div class="timer"><div class="ti">⏱️</div>Minuterie</div>
             <div class="play">❚❚</div>
@@ -303,6 +331,64 @@
         </div>
       </div></div>
       <div class="frame-label">6 · Paywall (fin de session gratuite)</div>
+    </div>
+
+    <!-- TIMER SHEET -->
+    <div class="frame-wrap">
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="pad" style="padding-bottom:0">
+          <div class="header">
+            <div style="flex:1"><div class="app-name">DreamDrops</div><div class="sub">2 sons en lecture</div></div>
+          </div>
+          <div style="flex:1"></div>
+          <div class="sheet">
+            <h3>Minuterie de sommeil</h3>
+            <div class="ss">Choisissez la durée — le son s'estompe en douceur à la fin</div>
+            <div class="chips">
+              <div class="chip">Désactivée</div>
+              <div class="chip">15 min</div>
+              <div class="chip on">30 min</div>
+              <div class="chip">45 min</div>
+              <div class="chip">60 min</div>
+              <div class="chip">90 min</div>
+              <div class="chip">120 min</div>
+              <div class="chip on">Personnalisée</div>
+            </div>
+            <div class="crow">
+              <div class="cinput">ex. 75</div>
+              <span style="color:var(--text2);font-size:13px">min</span>
+              <div class="cgo">Démarrer</div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+      <div class="frame-label">7 · Minuterie (durée au choix + personnalisée)</div>
+    </div>
+
+    <!-- SAFETY SHEET -->
+    <div class="frame-wrap">
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="pad" style="padding-bottom:0">
+          <div class="header">
+            <div style="flex:1"><div class="app-name">DreamDrops</div></div>
+          </div>
+          <div class="vol" style="padding:0 4px">
+            <div class="vh"><span class="vl">Volume</span><span class="vbadge" style="color:#FF8FA3">⚠️ Volume élevé · en savoir plus</span></div>
+            <div class="vbar"><div class="fill" style="width:82%;background:#FF8FA3"></div><div class="knob" style="left:82%;background:#FF8FA3"></div></div>
+            <div style="color:#FF8FA3;font-size:10.5px;margin-top:4px">Éloignez le téléphone d'au moins 2 m du berceau.</div>
+          </div>
+          <div style="flex:1"></div>
+          <div class="sheet">
+            <h3>Sommeil sûr 👶</h3>
+            <div class="ss">Recommandations des pédiatres (AAP) pour protéger l'audition de bébé :</div>
+            <div class="sitem"><span class="si">🔉</span><span class="stx">Gardez le volume bas — restez dans la zone « Volume sûr ».</span></div>
+            <div class="sitem"><span class="si">📏</span><span class="stx">Placez le téléphone à au moins 2 m (7 pieds) du berceau.</span></div>
+            <div class="sitem"><span class="si">⏱️</span><span class="stx">Limitez la durée : utilisez la minuterie d'endormissement.</span></div>
+            <div class="sitem"><span class="si">👂</span><span class="stx">Repère : vous devez pouvoir parler normalement dans la pièce.</span></div>
+          </div>
+        </div>
+      </div></div>
+      <div class="frame-label">8 · Sommeil sûr (unique — sécurité auditive)</div>
     </div>
 
   </div>

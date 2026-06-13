@@ -29,8 +29,28 @@ plaintes récurrentes — et comment DreamDrops les corrige :
 | « **Trop de pubs** avant de jouer » | **Zéro publicité.** Modèle premium par abonnement uniquement. |
 
 Autres atouts repris des meilleures apps : **mixeur** (plusieurs sons + volume
-individuel), **minuterie de sommeil avec fondu**, fonctionne **hors-ligne**, sons
-spécial nourrisson (**cœur maternel / womb**).
+individuel), **minuterie de sommeil avec fondu** (préréglages **+ durée
+personnalisée**), fonctionne **hors-ligne**, sons spécial nourrisson
+(**cœur maternel / womb**).
+
+## 🏆 L'avantage unique : « Sommeil sûr » (ce que personne ne fait)
+
+Toutes les apps concurrentes poussent du bruit blanc **sans aucune information sur
+le volume**, alors que les pédiatres (AAP) recommandent explicitement **< 50 dB, à
+au moins 2 m du berceau, durée limitée** — et une étude a montré que beaucoup de
+machines dépassent **85 dB** (dangereux pour l'audition). Les parents sont même
+invités à « utiliser une app pour mesurer le volume ». **Aucune app de bruit pour
+bébé n'intègre cette sécurité.**
+
+DreamDrops en fait son positionnement : l'app de sommeil pour bébé **sûre,
+informée par la pédiatrie**.
+- **Volume maître avec zone sûre** : le curseur passe en alerte au-delà du seuil
+  recommandé et conseille d'éloigner le téléphone du berceau.
+- **Fiche « Sommeil sûr »** : les 4 règles clés de l'AAP, intégrées dans l'app.
+- **Démarrage à volume modéré par défaut** + minuterie pour limiter la durée.
+
+C'est un différenciateur fort pour l'**ASO** (mots-clés « sûr », « pédiatre »), pour
+les **avis** (les parents font confiance) et donc pour la **conversion**.
 
 ## 💰 Monétisation & conversion — basé sur les données
 

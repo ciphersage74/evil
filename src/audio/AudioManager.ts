@@ -6,6 +6,8 @@ export type AudioState = {
   mix: Record<string, number>; // id du son -> volume individuel (0..1)
   isPlaying: boolean;
   timerRemaining: number; // secondes restantes (0 = minuterie off)
+  /** Volume maître réglé par le parent (0..1). */
+  volume: number;
   /** true quand la session gratuite vient d'expirer -> déclenche le paywall. */
   freeLimitHit: boolean;
 };
@@ -14,6 +16,12 @@ type Listener = (state: AudioState) => void;
 
 const FADE_MS = 8000; // fondu de sortie de la minuterie (ne réveille pas bébé)
 const FADE_STEP_MS = 100;
+
+// Sécurité auditive (recommandations AAP : volume bas, appareil à ~2 m du berceau,
+// durée limitée). Au-delà de ce seuil, l'UI prévient le parent. Différenciateur
+// qu'aucune app concurrente de bruit pour bébé ne propose.
+export const SAFE_VOLUME_MAX = 0.7;
+const DEFAULT_VOLUME = 0.55;
 
 // Levier de conversion : les utilisateurs gratuits ont des sessions limitées.
 // Le bénéfice clé "joue toute la nuit" devient une raison concrète de passer
@@ -34,9 +42,11 @@ class AudioManagerImpl {
     mix: {},
     isPlaying: false,
     timerRemaining: 0,
+    volume: DEFAULT_VOLUME,
     freeLimitHit: false,
   };
-  private master = 1;
+  private userVolume = DEFAULT_VOLUME; // volume maître réglé par le parent
+  private fadeLevel = 1; // multiplicateur interne (fondu minuterie / session)
   private timerHandle: ReturnType<typeof setInterval> | null = null;
   private fadeHandle: ReturnType<typeof setInterval> | null = null;
   private freeSessionHandle: ReturnType<typeof setTimeout> | null = null;
@@ -106,7 +116,7 @@ class AudioManagerImpl {
       return;
     }
     this.emit({ mix: { ...this.state.mix, [id]: v } });
-    await this.sounds.get(id)?.setVolumeAsync(v * this.master);
+    await this.sounds.get(id)?.setVolumeAsync(v * this.gain());
   }
 
   private async addSound(id: string, volume: number) {
@@ -116,7 +126,7 @@ class AudioManagerImpl {
     try {
       const { sound } = await Audio.Sound.createAsync(meta.source, {
         isLooping: true,
-        volume: volume * this.master,
+        volume: volume * this.gain(),
         shouldPlay: true,
       });
       this.sounds.set(id, sound);
@@ -146,7 +156,7 @@ class AudioManagerImpl {
 
   async play() {
     if (Object.keys(this.state.mix).length === 0) return;
-    this.setMaster(1);
+    this.setFadeLevel(1);
     await Promise.all([...this.sounds.values()].map((s) => s.playAsync().catch(() => {})));
     await activateKeepAwakeAsync('playback');
     this.emit({ isPlaying: true });
@@ -191,7 +201,7 @@ class AudioManagerImpl {
       try {
         const { sound } = await Audio.Sound.createAsync(meta.source, {
           isLooping: true,
-          volume: mix[id] * this.master,
+          volume: mix[id] * this.gain(),
           shouldPlay: true,
         });
         this.sounds.set(id, sound);
@@ -235,10 +245,10 @@ class AudioManagerImpl {
         if (this.fadeHandle) clearInterval(this.fadeHandle);
         this.fadeHandle = null;
         this.pause();
-        this.setMaster(1); // réinitialise pour la prochaine lecture
+        this.setFadeLevel(1); // réinitialise pour la prochaine lecture
         onDone?.();
       } else {
-        this.setMaster(level);
+        this.setFadeLevel(level);
       }
     }, FADE_STEP_MS);
   }
@@ -263,11 +273,30 @@ class AudioManagerImpl {
     }
   }
 
-  private setMaster(level: number) {
-    this.master = Math.max(0, Math.min(1, level));
+  // ---- Volume maître (parent) + sécurité auditive --------------------------
+
+  /** Volume effectif = choix parent × fondu interne. */
+  private gain() {
+    return this.userVolume * this.fadeLevel;
+  }
+
+  /** Volume maître réglé par le parent (0..1). Appliqué immédiatement. */
+  setUserVolume(volume: number) {
+    this.userVolume = Math.max(0, Math.min(1, volume));
+    this.applyGains();
+    this.emit({ volume: this.userVolume });
+  }
+
+  /** Multiplicateur interne pour les fondus (minuterie / fin de session). */
+  private setFadeLevel(level: number) {
+    this.fadeLevel = Math.max(0, Math.min(1, level));
+    this.applyGains();
+  }
+
+  private applyGains() {
+    const g = this.gain();
     for (const [id, sound] of this.sounds) {
-      const v = (this.state.mix[id] ?? 0) * this.master;
-      sound.setVolumeAsync(v).catch(() => {});
+      sound.setVolumeAsync((this.state.mix[id] ?? 0) * g).catch(() => {});
     }
   }
 
