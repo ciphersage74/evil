@@ -1,4 +1,4 @@
-# DreamDrops 🌙 — Sons de pluie pour endormir bébé
+# Bébé Dort 🌙 — Sons de pluie pour endormir bébé
 
 Application mobile **Android + iPhone** (React Native / Expo, TypeScript) qui aide
 les bébés à s'endormir avec des bruits de pluie, de cœur maternel et de bruit blanc.
@@ -20,9 +20,9 @@ Installe **Expo Go** (Play Store / App Store), scanne le QR code → l'app se la
 ## 🎯 Ce qui rend l'app meilleure que les concurrentes
 
 J'ai analysé les meilleures apps du Play Store **et leurs avis négatifs**. Les 3
-plaintes récurrentes — et comment DreamDrops les corrige :
+plaintes récurrentes — et comment Bébé Dort les corrige :
 
-| Plainte fréquente (concurrents) | Correction dans DreamDrops |
+| Plainte fréquente (concurrents) | Correction dans Bébé Dort |
 | --- | --- |
 | « Le son **s'arrête tout seul la nuit** » | Lecture en arrière-plan + écran éteint (`staysActiveInBackground`, mode audio iOS, `keep-awake`) **et** une carte qui guide l'utilisateur pour désactiver l'optimisation batterie. |
 | « On **entend la boucle** / ça coupe » | Les sons sont **synthétisés** et raccordés avec un **fondu enchaîné** : la boucle est imperceptible et infinie. |
@@ -42,7 +42,7 @@ machines dépassent **85 dB** (dangereux pour l'audition). Les parents sont mêm
 invités à « utiliser une app pour mesurer le volume ». **Aucune app de bruit pour
 bébé n'intègre cette sécurité.**
 
-DreamDrops en fait son positionnement : l'app de sommeil pour bébé **sûre,
+Bébé Dort en fait son positionnement : l'app de sommeil pour bébé **sûre,
 informée par la pédiatrie**.
 - **Volume maître avec zone sûre** : le curseur passe en alerte au-delà du seuil
   recommandé et conseille d'éloigner le téléphone du berceau.

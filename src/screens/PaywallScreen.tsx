@@ -23,7 +23,7 @@ const FEATURES = [
 const HEADLINES: Record<PaywallReason, { title: string; subtitle: string }> = {
   intro: {
     title: 'Offrez à bébé ses plus belles nuits',
-    subtitle: 'Essayez DreamDrops Premium gratuitement pendant 7 jours.',
+    subtitle: 'Essayez Bébé Dort Premium gratuitement pendant 7 jours.',
   },
   limit: {
     title: 'Votre aperçu gratuit est terminé',
@@ -34,7 +34,7 @@ const HEADLINES: Record<PaywallReason, { title: string; subtitle: string }> = {
     subtitle: 'Pluie forte, vent, ruisseau… et bien plus, en illimité.',
   },
   manual: {
-    title: 'DreamDrops Premium',
+    title: 'Bébé Dort Premium',
     subtitle: 'Tout ce qu\'il faut à bébé pour une nuit complète.',
   },
 };

@@ -60,7 +60,7 @@ export function HomeScreen({
         {/* En-tête */}
         <View style={styles.header}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.appName}>DreamDrops</Text>
+            <Text style={styles.appName}>Bébé Dort</Text>
             <Text style={styles.subtitle}>
               {activeCount === 0
                 ? 'Touchez un son pour démarrer'
@@ -200,7 +200,7 @@ function SettingsModal({
           title="Conditions d'utilisation"
           onPress={() => Linking.openURL(TERMS_URL).catch(() => {})}
         />
-        <Text style={styles.version}>DreamDrops v1.0.0</Text>
+        <Text style={styles.version}>Bébé Dort v1.0.0</Text>
         <View style={{ height: 16 }} />
       </View>
     </Modal>
@@ -394,7 +394,7 @@ function BatteryTip({ onDismiss }: { onDismiss: () => void }) {
       <Text style={styles.tipTitle}>Gardez le son toute la nuit</Text>
       <Text style={styles.tipBody}>
         Certains téléphones arrêtent les apps pour économiser la batterie. Autorisez
-        DreamDrops à fonctionner sans restriction pour que le son ne se coupe jamais.
+        Bébé Dort à fonctionner sans restriction pour que le son ne se coupe jamais.
       </Text>
       <View style={styles.tipActions}>
         <Pressable

@@ -58,7 +58,7 @@ export function WelcomeScreen({ onStart }: { onStart: () => void }) {
           </View>
 
           <Animated.View style={{ transform: [{ translateY: rise }] }}>
-            <Text style={styles.title}>DreamDrops</Text>
+            <Text style={styles.title}>Bébé Dort</Text>
             <Text style={styles.tagline}>
               Aidez bébé à s'endormir{'\n'}en quelques minutes
             </Text>
