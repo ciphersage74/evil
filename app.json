@@ -8,6 +8,7 @@
     "scheme": "dreamdrops",
     "userInterfaceStyle": "dark",
     "backgroundColor": "#0B1026",
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
