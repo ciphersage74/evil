@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { NightBackground, PrimaryButton } from '../components/ui';
+import { PRIVACY_URL, TERMS_URL } from '../legal';
 import {
   Plan,
   PlanId,
@@ -162,14 +163,14 @@ export function PaywallScreen({
         <View style={styles.legalRow}>
           <Text
             style={styles.legalLink}
-            onPress={() => Linking.openURL('https://dreamdrops.app/privacy').catch(() => {})}
+            onPress={() => Linking.openURL(PRIVACY_URL).catch(() => {})}
           >
             Confidentialité
           </Text>
           <Text style={styles.legalDot}>·</Text>
           <Text
             style={styles.legalLink}
-            onPress={() => Linking.openURL('https://dreamdrops.app/terms').catch(() => {})}
+            onPress={() => Linking.openURL(TERMS_URL).catch(() => {})}
           >
             Conditions
           </Text>

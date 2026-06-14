@@ -15,15 +15,12 @@ import {
 } from 'react-native';
 import { AudioManager, SAFE_VOLUME_MAX } from '../audio/AudioManager';
 import { openManageSubscriptions } from '../billing/purchases';
+import { PRIVACY_URL, TERMS_URL } from '../legal';
 import { SOUNDS, Sound } from '../audio/sounds';
 import { useAudio } from '../audio/useAudio';
 import { Chip, NightBackground } from '../components/ui';
 import { PaywallReason } from './PaywallScreen';
 import { theme } from '../theme';
-
-// À remplacer par vos vraies URLs avant publication (requis par les stores).
-const PRIVACY_URL = 'https://dreamdrops.app/privacy';
-const TERMS_URL = 'https://dreamdrops.app/terms';
 
 type Props = {
   premium: boolean;
