@@ -1,4 +1,5 @@
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
+import { Alert } from 'react-native';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { getSound } from './sounds';
 
@@ -70,26 +71,19 @@ class AudioManagerImpl {
   async init() {
     if (this.initialized) return;
     this.initialized = true;
-    // Non bloquant : si la config échoue, la lecture (au moins au premier plan)
-    // doit quand même fonctionner. On tente le mode complet, puis un repli minimal.
+    // Mode audio minimal et fiable. On N'active PAS staysActiveInBackground :
+    // sur Android 14 il déclenche un service de premier plan qui peut faire
+    // échouer la lecture. La continuité de lecture est assurée par keep-awake.
+    // Non bloquant : même si ça échoue, la lecture doit fonctionner.
     try {
       await Audio.setAudioModeAsync({
-        staysActiveInBackground: true, // continue écran éteint / app en fond
         playsInSilentModeIOS: true, // joue même en mode silencieux (iPhone)
         shouldDuckAndroid: true,
         interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
         interruptionModeIOS: InterruptionModeIOS.MixWithOthers,
       });
     } catch (e) {
-      console.warn('setAudioModeAsync (complet) a échoué, repli minimal', e);
-      try {
-        await Audio.setAudioModeAsync({
-          playsInSilentModeIOS: true,
-          shouldDuckAndroid: true,
-        });
-      } catch (e2) {
-        console.warn('setAudioModeAsync (minimal) a échoué', e2);
-      }
+      console.warn('setAudioModeAsync a échoué', e);
     }
   }
 
@@ -147,7 +141,10 @@ class AudioManagerImpl {
       await activateKeepAwakeAsync('playback').catch(() => {});
       this.startFreeSession();
     } catch (e) {
+      // Diagnostic temporaire : affiche la cause exacte si la lecture échoue.
+      const msg = e instanceof Error ? e.message : String(e);
       console.warn('addSound failed', id, e);
+      Alert.alert('Erreur audio (diagnostic)', `Son: ${id}\n${msg}`);
     }
   }
 
