@@ -20,9 +20,12 @@
  */
 import { Linking, Platform } from 'react-native';
 
+// Clé de TEST RevenueCat (sandbox / Test Store). À remplacer par les vraies clés
+// publiques 'goog_...' (Google Play) et 'appl_...' (App Store) avant la mise en
+// production. Ne fonctionne que dans un dev build, pas dans Expo Go.
 const REVENUECAT_API_KEY = {
-  ios: 'appl_XXXXXXXXXXXXXXXXXXXX',
-  android: 'goog_XXXXXXXXXXXXXXXXXXXX',
+  ios: 'test_HGVVDTvfTZLTEwNPEeHVdHBwCnO',
+  android: 'test_HGVVDTvfTZLTEwNPEeHVdHBwCnO',
 };
 const ENTITLEMENT_ID = 'premium';
 
