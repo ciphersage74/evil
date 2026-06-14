@@ -75,7 +75,7 @@ const FALLBACK_PLANS: Plan[] = [
     packageId: PLAN_PACKAGE_ID.annual,
     title: 'Annuel',
     price: '34,99 €',
-    caption: 'soit 2,92 €/mois — 58 % d\'économie',
+    caption: 'Le plus avantageux',
     period: 'year',
     badge: 'MEILLEURE OFFRE · 7 JOURS OFFERTS',
     trialDays: 7,

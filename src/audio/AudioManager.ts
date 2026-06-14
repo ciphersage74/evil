@@ -144,7 +144,7 @@ class AudioManagerImpl {
       });
       this.sounds.set(id, sound);
       this.emit({ mix: { ...this.state.mix, [id]: volume }, isPlaying: true });
-      await activateKeepAwakeAsync('playback');
+      await activateKeepAwakeAsync('playback').catch(() => {});
       this.startFreeSession();
     } catch (e) {
       console.warn('addSound failed', id, e);
@@ -171,7 +171,7 @@ class AudioManagerImpl {
     if (Object.keys(this.state.mix).length === 0) return;
     this.setFadeLevel(1);
     await Promise.all([...this.sounds.values()].map((s) => s.playAsync().catch(() => {})));
-    await activateKeepAwakeAsync('playback');
+    await activateKeepAwakeAsync('playback').catch(() => {});
     this.emit({ isPlaying: true });
     this.startFreeSession();
   }
@@ -201,30 +201,6 @@ class AudioManagerImpl {
     this.sounds.clear();
     deactivateKeepAwake('playback');
     this.emit({ mix: {}, isPlaying: false, timerRemaining: 0 });
-  }
-
-  /** Recharge un mix sauvegardé sans relancer la lecture. */
-  async restoreMix(mix: Record<string, number>) {
-    const ids = Object.keys(mix);
-    if (ids.length === 0) return;
-    await this.init();
-    for (const id of ids) {
-      const meta = getSound(id);
-      if (!meta) continue;
-      try {
-        const { sound } = await Audio.Sound.createAsync(meta.source, {
-          isLooping: true,
-          volume: mix[id] * this.gain(),
-          shouldPlay: true,
-        });
-        this.sounds.set(id, sound);
-      } catch (e) {
-        console.warn('restore failed', id, e);
-      }
-    }
-    await activateKeepAwakeAsync('playback');
-    this.emit({ mix, isPlaying: true });
-    this.startFreeSession();
   }
 
   // ---- Minuterie de sommeil ------------------------------------------------

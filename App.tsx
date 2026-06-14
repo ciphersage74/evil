@@ -13,10 +13,9 @@ import { theme } from './src/theme';
 
 export default function App() {
   const prefs = usePrefs();
-  const { mix, freeLimitHit } = useAudio();
+  const { freeLimitHit } = useAudio();
   const [paywall, setPaywall] = useState<PaywallReason | null>(null);
   const [welcomed, setWelcomed] = useState(false);
-  const [restored, setRestored] = useState(false);
 
   // Init audio + facturation au démarrage.
   useEffect(() => {
@@ -34,22 +33,8 @@ export default function App() {
     AudioManager.setPremium(prefs.premium);
   }, [prefs.premium]);
 
-  // Restaure le dernier mix une fois les préférences chargées.
-  useEffect(() => {
-    if (prefs.ready && !restored) {
-      setRestored(true);
-      if (Object.keys(prefs.lastMix).length > 0) {
-        AudioManager.restoreMix(prefs.lastMix);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prefs.ready, restored]);
-
-  // Sauvegarde le mix à chaque changement.
-  useEffect(() => {
-    if (restored) prefs.saveMix(mix);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mix, restored]);
+  // L'app démarre propre : aucun son n'est relancé automatiquement à l'ouverture.
+  // Le parent choisit ses sons à chaque session.
 
   // Conversion : pas de paywall à l'ouverture. L'utilisateur profite des sons,
   // puis le paywall apparaît à la fin de la session gratuite (15 min) ou au tap
