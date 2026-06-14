@@ -161,12 +161,21 @@ export async function fetchPlans(): Promise<Plan[]> {
   }
 }
 
+// Vrai si l'utilisateur a un abonnement actif. On accepte l'entitlement nommé
+// ENTITLEMENT_ID, ou — par robustesse — n'importe quel entitlement actif (l'app
+// n'en a qu'un), pour que ça marche quel que soit son identifiant côté RevenueCat.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function hasActiveEntitlement(info: any): boolean {
+  const active = info?.entitlements?.active ?? {};
+  return active[ENTITLEMENT_ID] !== undefined || Object.keys(active).length > 0;
+}
+
 export async function isPremiumActive(): Promise<boolean> {
   load();
   if (!available) return false;
   try {
     const info = await Purchases.getCustomerInfo();
-    return info.entitlements.active[ENTITLEMENT_ID] !== undefined;
+    return hasActiveEntitlement(info);
   } catch {
     return false;
   }
@@ -184,7 +193,7 @@ export async function purchasePlan(planId: PlanId): Promise<boolean> {
     const target = packageForPlan(offering, planId);
     if (!target) return false;
     const { customerInfo } = await Purchases.purchasePackage(target);
-    return customerInfo.entitlements.active[ENTITLEMENT_ID] !== undefined;
+    return hasActiveEntitlement(customerInfo);
   } catch {
     // Annulation utilisateur ou erreur réseau.
     return false;
@@ -209,7 +218,7 @@ export async function restorePurchases(): Promise<boolean> {
   if (!available) return false;
   try {
     const info = await Purchases.restorePurchases();
-    return info.entitlements.active[ENTITLEMENT_ID] !== undefined;
+    return hasActiveEntitlement(info);
   } catch {
     return false;
   }

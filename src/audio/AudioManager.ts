@@ -70,14 +70,27 @@ class AudioManagerImpl {
   async init() {
     if (this.initialized) return;
     this.initialized = true;
-    await Audio.setAudioModeAsync({
-      staysActiveInBackground: true, // continue écran éteint / app en fond
-      playsInSilentModeIOS: true, // joue même en mode silencieux (iPhone)
-      shouldDuckAndroid: true,
-      interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
-      interruptionModeIOS: InterruptionModeIOS.MixWithOthers,
-      playThroughEarpieceAndroid: false,
-    });
+    // Non bloquant : si la config échoue, la lecture (au moins au premier plan)
+    // doit quand même fonctionner. On tente le mode complet, puis un repli minimal.
+    try {
+      await Audio.setAudioModeAsync({
+        staysActiveInBackground: true, // continue écran éteint / app en fond
+        playsInSilentModeIOS: true, // joue même en mode silencieux (iPhone)
+        shouldDuckAndroid: true,
+        interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
+        interruptionModeIOS: InterruptionModeIOS.MixWithOthers,
+      });
+    } catch (e) {
+      console.warn('setAudioModeAsync (complet) a échoué, repli minimal', e);
+      try {
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          shouldDuckAndroid: true,
+        });
+      } catch (e2) {
+        console.warn('setAudioModeAsync (minimal) a échoué', e2);
+      }
+    }
   }
 
   subscribe(listener: Listener): () => void {

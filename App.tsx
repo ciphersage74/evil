@@ -51,15 +51,9 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mix, restored]);
 
-  // Conversion : présente l'essai gratuit juste après l'onboarding (jour 0,
-  // configuration la plus performante d'après RevenueCat SOSA 2025).
-  useEffect(() => {
-    if (prefs.ready && prefs.onboardingDone && !prefs.seenIntroPaywall && !prefs.premium) {
-      setPaywall('intro');
-      prefs.setSeenIntroPaywall();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prefs.ready, prefs.onboardingDone, prefs.seenIntroPaywall, prefs.premium]);
+  // Conversion : pas de paywall à l'ouverture. L'utilisateur profite des sons,
+  // puis le paywall apparaît à la fin de la session gratuite (15 min) ou au tap
+  // d'un son premium.
 
   // Conversion : la session gratuite a expiré -> paywall contextualisé.
   useEffect(() => {
