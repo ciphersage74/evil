@@ -17,13 +17,13 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.dreamdrops.babysleep",
+      "bundleIdentifier": "com.rezzely.bebedort",
       "infoPlist": {
         "UIBackgroundModes": ["audio"]
       }
     },
     "android": {
-      "package": "com.dreamdrops.babysleep",
+      "package": "com.rezzely.bebedort",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1B2A6B"

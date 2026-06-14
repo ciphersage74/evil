@@ -205,7 +205,7 @@ export async function purchasePlan(planId: PlanId): Promise<boolean> {
  * résilier. Obligatoire (politiques Google Play / Apple) et rassure les parents
  * — évite les avis « impossible de se désabonner ».
  */
-export async function openManageSubscriptions(packageName = 'com.dreamdrops.babysleep'): Promise<void> {
+export async function openManageSubscriptions(packageName = 'com.rezzely.bebedort'): Promise<void> {
   const url =
     Platform.OS === 'ios'
       ? 'https://apps.apple.com/account/subscriptions'
