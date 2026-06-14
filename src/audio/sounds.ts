@@ -15,16 +15,16 @@ export type Sound = {
 };
 
 export const SOUNDS: Sound[] = [
-  { id: 'rain', label: 'Gentle Rain', emoji: '🌧️', tint: '#6FA8FF', premium: false, source: require('../../assets/sounds/rain.wav') },
-  { id: 'womb', label: 'Womb Heartbeat', emoji: '❤️', tint: '#FF8FA3', premium: false, source: require('../../assets/sounds/womb.wav') },
-  { id: 'white', label: 'White Noise', emoji: '🔅', tint: '#B9C4E0', premium: false, source: require('../../assets/sounds/white.wav') },
-  { id: 'ocean', label: 'Ocean Waves', emoji: '🌊', tint: '#55C6D6', premium: false, source: require('../../assets/sounds/ocean.wav') },
-  { id: 'heavy_rain', label: 'Heavy Rain', emoji: '⛈️', tint: '#4F7FE0', premium: true, source: require('../../assets/sounds/heavy_rain.wav') },
-  { id: 'pink', label: 'Pink Noise', emoji: '🌸', tint: '#FFA8D0', premium: true, source: require('../../assets/sounds/pink.wav') },
-  { id: 'brown', label: 'Brown Noise', emoji: '🌰', tint: '#D2A679', premium: true, source: require('../../assets/sounds/brown.wav') },
-  { id: 'wind', label: 'Soft Wind', emoji: '🌬️', tint: '#9FE0C0', premium: true, source: require('../../assets/sounds/wind.wav') },
-  { id: 'stream', label: 'Forest Stream', emoji: '💧', tint: '#7FD0FF', premium: true, source: require('../../assets/sounds/stream.wav') },
-  { id: 'fan', label: 'Fan', emoji: '🌀', tint: '#C0C0D8', premium: true, source: require('../../assets/sounds/fan.wav') },
+  { id: 'rain', label: 'Pluie douce', emoji: '🌧️', tint: '#6FA8FF', premium: false, source: require('../../assets/sounds/rain.wav') },
+  { id: 'womb', label: 'Cœur maternel', emoji: '❤️', tint: '#FF8FA3', premium: false, source: require('../../assets/sounds/womb.wav') },
+  { id: 'white', label: 'Bruit blanc', emoji: '🔅', tint: '#B9C4E0', premium: false, source: require('../../assets/sounds/white.wav') },
+  { id: 'ocean', label: 'Vagues océan', emoji: '🌊', tint: '#55C6D6', premium: false, source: require('../../assets/sounds/ocean.wav') },
+  { id: 'heavy_rain', label: 'Pluie forte', emoji: '⛈️', tint: '#4F7FE0', premium: true, source: require('../../assets/sounds/heavy_rain.wav') },
+  { id: 'pink', label: 'Bruit rose', emoji: '🌸', tint: '#FFA8D0', premium: true, source: require('../../assets/sounds/pink.wav') },
+  { id: 'brown', label: 'Bruit brun', emoji: '🌰', tint: '#D2A679', premium: true, source: require('../../assets/sounds/brown.wav') },
+  { id: 'wind', label: 'Vent doux', emoji: '🌬️', tint: '#9FE0C0', premium: true, source: require('../../assets/sounds/wind.wav') },
+  { id: 'stream', label: 'Ruisseau', emoji: '💧', tint: '#7FD0FF', premium: true, source: require('../../assets/sounds/stream.wav') },
+  { id: 'fan', label: 'Ventilateur', emoji: '🌀', tint: '#C0C0D8', premium: true, source: require('../../assets/sounds/fan.wav') },
 ];
 
 export const FREE_IDS = SOUNDS.filter((s) => !s.premium).map((s) => s.id);
