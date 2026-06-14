@@ -18,6 +18,7 @@
  *      correspondent à PLAN_PACKAGE_ID, liés à un entitlement "premium"
  *   4) builder avec EAS (pas Expo Go)
  */
+import Constants from 'expo-constants';
 import { Linking, Platform } from 'react-native';
 
 // Clé de TEST RevenueCat (sandbox / Test Store). À remplacer par les vraies clés
@@ -94,14 +95,23 @@ const FALLBACK_PLANS: Plan[] = [
 let Purchases: any = null;
 let available = false;
 
+// Expo Go n'embarque pas les modules natifs -> on force le mode démo. Le vrai
+// SDK RevenueCat ne s'active que dans un dev build / une app publiée.
+const isExpoGo = Constants.executionEnvironment === 'storeClient';
+
 function load() {
   if (Purchases !== null) return;
+  if (isExpoGo) {
+    Purchases = false; // marque comme "chargé" pour ne pas réessayer
+    available = false;
+    return;
+  }
   try {
-    // require dynamique : absent dans Expo Go -> mode démo.
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     Purchases = require('react-native-purchases').default;
     available = true;
   } catch {
+    Purchases = false;
     available = false;
   }
 }
