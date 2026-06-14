@@ -119,20 +119,29 @@ export async function initPurchases(): Promise<void> {
   }
 }
 
+/**
+ * Récupère le package standard correspondant au plan dans l'offering courant.
+ * Utilise les emplacements standard RevenueCat (monthly / annual / lifetime),
+ * ce qui marche quel que soit l'identifiant exact configuré.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function packageForPlan(offering: any, planId: PlanId) {
+  if (!offering) return null;
+  if (planId === 'monthly') return offering.monthly ?? null;
+  if (planId === 'annual') return offering.annual ?? null;
+  return offering.lifetime ?? null;
+}
+
 /** Renvoie les plans avec prix réels (ou prix de repli en mode démo). */
 export async function fetchPlans(): Promise<Plan[]> {
   load();
   if (!available) return FALLBACK_PLANS;
   try {
-    const offerings = await Purchases.getOfferings();
-    const packages = offerings.current?.availablePackages ?? [];
-    const byId = new Map<string, string>();
-    for (const p of packages) {
-      byId.set(p.identifier, p.product?.priceString ?? '');
-    }
+    const offering = (await Purchases.getOfferings()).current;
+    if (!offering) return FALLBACK_PLANS;
     return FALLBACK_PLANS.map((plan) => ({
       ...plan,
-      price: byId.get(plan.packageId) || plan.price,
+      price: packageForPlan(offering, plan.id)?.product?.priceString || plan.price,
     }));
   } catch {
     return FALLBACK_PLANS;
@@ -158,12 +167,8 @@ export async function purchasePlan(planId: PlanId): Promise<boolean> {
     return true;
   }
   try {
-    const offerings = await Purchases.getOfferings();
-    const packages = offerings.current?.availablePackages ?? [];
-    const target = packages.find(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (p: any) => p.identifier === PLAN_PACKAGE_ID[planId],
-    );
+    const offering = (await Purchases.getOfferings()).current;
+    const target = packageForPlan(offering, planId);
     if (!target) return false;
     const { customerInfo } = await Purchases.purchasePackage(target);
     return customerInfo.entitlements.active[ENTITLEMENT_ID] !== undefined;
