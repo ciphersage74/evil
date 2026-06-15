@@ -1,5 +1,4 @@
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
-import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { getSound } from './sounds';
 
 export type AudioState = {
@@ -70,12 +69,11 @@ class AudioManagerImpl {
   async init() {
     if (this.initialized) return;
     this.initialized = true;
-    // Mode audio minimal et fiable. On N'active PAS staysActiveInBackground :
-    // sur Android 14 il déclenche un service de premier plan qui peut faire
-    // échouer la lecture. La continuité de lecture est assurée par keep-awake.
-    // Non bloquant : même si ça échoue, la lecture doit fonctionner.
+    // Lecture en arrière-plan / écran éteint (le bug "aucun son" venait d'un
+    // module manquant, pas de ce mode). Non bloquant par sécurité.
     try {
       await Audio.setAudioModeAsync({
+        staysActiveInBackground: true, // continue quand l'écran s'éteint
         playsInSilentModeIOS: true, // joue même en mode silencieux (iPhone)
         shouldDuckAndroid: true,
         interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
@@ -137,7 +135,6 @@ class AudioManagerImpl {
       });
       this.sounds.set(id, sound);
       this.emit({ mix: { ...this.state.mix, [id]: volume }, isPlaying: true });
-      await activateKeepAwakeAsync('playback').catch(() => {});
       this.startFreeSession();
     } catch (e) {
       console.warn('addSound failed', id, e);
@@ -164,7 +161,6 @@ class AudioManagerImpl {
     if (Object.keys(this.state.mix).length === 0) return;
     this.setFadeLevel(1);
     await Promise.all([...this.sounds.values()].map((s) => s.playAsync().catch(() => {})));
-    await activateKeepAwakeAsync('playback').catch(() => {});
     this.emit({ isPlaying: true });
     this.startFreeSession();
   }
@@ -173,7 +169,6 @@ class AudioManagerImpl {
     this.cleanupTimers();
     this.clearFreeSession();
     await Promise.all([...this.sounds.values()].map((s) => s.pauseAsync().catch(() => {})));
-    deactivateKeepAwake('playback');
     this.emit({ isPlaying: false });
   }
 
@@ -192,7 +187,6 @@ class AudioManagerImpl {
       }),
     );
     this.sounds.clear();
-    deactivateKeepAwake('playback');
     this.emit({ mix: {}, isPlaying: false, timerRemaining: 0 });
   }
 
