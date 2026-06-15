@@ -1,5 +1,4 @@
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
-import { Alert } from 'react-native';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { getSound } from './sounds';
 
@@ -141,10 +140,7 @@ class AudioManagerImpl {
       await activateKeepAwakeAsync('playback').catch(() => {});
       this.startFreeSession();
     } catch (e) {
-      // Diagnostic temporaire : affiche la cause exacte si la lecture échoue.
-      const msg = e instanceof Error ? e.message : String(e);
       console.warn('addSound failed', id, e);
-      Alert.alert('Erreur audio (diagnostic)', `Son: ${id}\n${msg}`);
     }
   }
 
