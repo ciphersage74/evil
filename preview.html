@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bébé Dort — Aperçu des écrans</title>
+<style>
+  :root {
+    --night: #0B1026;
+    --night-top: #131A3A;
+    --night-deep: #070A18;
+    --surface: #161E3D;
+    --surface-variant: #1F2A52;
+    --lavender: #B9A8FF;
+    --moon: #FFE9A8;
+    --soft-blue: #7FB2FF;
+    --text: #EDF1FF;
+    --text2: #9AA6CC;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #05060f;
+    color: var(--text);
+    padding: 40px 20px 80px;
+  }
+  .page-title { text-align: center; margin-bottom: 8px; font-size: 30px; font-weight: 800; }
+  .page-sub { text-align: center; color: var(--text2); margin-bottom: 40px; font-size: 15px; }
+
+  .grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 36px 28px;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .frame-wrap { width: 300px; }
+  .frame-label { text-align: center; color: var(--text2); margin-top: 14px; font-size: 13px; font-weight: 600; letter-spacing: .3px; }
+
+  /* Cadre téléphone */
+  .phone {
+    width: 300px;
+    height: 640px;
+    border-radius: 38px;
+    padding: 12px;
+    background: #000;
+    box-shadow: 0 20px 50px rgba(0,0,0,.6), inset 0 0 0 2px #222;
+    position: relative;
+  }
+  .screen {
+    width: 100%;
+    height: 100%;
+    border-radius: 28px;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(180deg, var(--night-top) 0%, var(--night) 55%, var(--night-deep) 100%);
+  }
+  .notch {
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+    width: 110px; height: 22px; background: #000; border-radius: 0 0 14px 14px; z-index: 30;
+  }
+  .pad { padding: 44px 18px 18px; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 5; }
+
+  /* Étoiles */
+  .stars { position: absolute; inset: 0; z-index: 1; }
+  .star { position: absolute; background: var(--moon); border-radius: 50%; animation: tw 3s infinite ease-in-out; }
+  @keyframes tw { 0%,100% { opacity: .15; } 50% { opacity: .9; } }
+
+  .btn {
+    background: var(--lavender); color: var(--night);
+    border: none; border-radius: 28px; height: 52px; width: 100%;
+    font-size: 15px; font-weight: 700; cursor: default;
+  }
+  .small { font-size: 11px; color: var(--text2); text-align: center; margin-top: 10px; }
+
+  /* Welcome */
+  .w-center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .glow {
+    position: absolute; width: 200px; height: 200px; border-radius: 50%;
+    background: var(--lavender); opacity: .4; filter: blur(8px);
+    animation: breathe 5s infinite ease-in-out;
+  }
+  @keyframes breathe { 0%,100% { opacity: .22; transform: scale(.9);} 50% { opacity: .5; transform: scale(1.12);} }
+  .logo { width: 150px; height: 150px; position: relative; z-index: 2; }
+  .w-title { font-size: 36px; font-weight: 800; margin-top: 22px; letter-spacing: .5px; }
+  .w-tag { color: var(--text2); text-align: center; margin-top: 10px; font-size: 15px; line-height: 1.5; }
+
+  /* Onboarding */
+  .onb { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 14px; }
+  .onb .emoji { font-size: 84px; margin-bottom: 26px; }
+  .onb h2 { font-size: 24px; font-weight: 700; margin-bottom: 14px; }
+  .onb p { color: var(--text2); font-size: 14px; line-height: 1.55; }
+  .dots { display: flex; gap: 7px; justify-content: center; margin: 18px 0; }
+  .dot { width: 8px; height: 8px; border-radius: 4px; background: rgba(154,166,204,.3); }
+  .dot.on { width: 22px; background: var(--lavender); }
+
+  /* Home */
+  .header { display: flex; align-items: flex-start; margin-bottom: 12px; }
+  .app-name { font-size: 22px; font-weight: 700; }
+  .sub { color: var(--text2); font-size: 12px; margin-top: 2px; }
+  .free-note { color: var(--moon); font-size: 11px; margin-top: 4px; font-weight: 600; }
+  .pill { background: rgba(255,233,168,.15); color: var(--moon); font-weight: 600;
+          padding: 7px 13px; border-radius: 18px; font-size: 12px; }
+  .tip { background: rgba(255,233,168,.12); border-radius: 14px; padding: 12px; margin-bottom: 12px; }
+  .tip b { color: var(--moon); font-size: 12px; }
+  .tip p { color: var(--text2); font-size: 10.5px; line-height: 1.4; margin-top: 3px; }
+  .tip .row { display: flex; gap: 10px; margin-top: 8px; align-items: center; }
+  .tip .cta { background: rgba(255,233,168,.18); color: var(--moon); font-size: 11px; font-weight: 600; padding: 6px 10px; border-radius: 10px; }
+  .tip .later { color: var(--lavender); font-size: 11px; font-weight: 600; }
+  .sgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; flex: 1; align-content: start; }
+  .card { background: var(--surface); border: 1.5px solid transparent; border-radius: 18px;
+          padding: 10px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; min-height: 78px; }
+  .card .ce { font-size: 26px; }
+  .card .cl { color: var(--text2); font-size: 10px; margin-top: 5px; text-align: center; }
+  .card.sel { border-color: var(--sel); background: color-mix(in srgb, var(--sel) 20%, transparent); }
+  .card.sel .cl { color: var(--text); }
+  .lock { position: absolute; top: 6px; right: 7px; font-size: 10px; }
+  .mini-slider { width: 90%; height: 4px; border-radius: 3px; margin-top: 8px; }
+  .controls { display: flex; align-items: center; justify-content: space-between; padding: 14px 4px 4px; }
+  .timer { text-align: center; width: 50px; color: var(--text2); font-size: 11px; }
+  .timer .ti { font-size: 20px; }
+  .play { width: 64px; height: 64px; border-radius: 50%; background: var(--lavender); color: var(--night);
+          display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700;
+          box-shadow: 0 0 0 0 rgba(185,168,255,.5); animation: pulse 3.2s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(185,168,255,.45);} 70% { box-shadow: 0 0 0 22px rgba(185,168,255,0);} 100% { box-shadow: 0 0 0 0 rgba(185,168,255,0);} }
+
+  /* Paywall */
+  .pw { flex: 1; overflow: hidden; }
+  .pw .x { text-align: right; color: var(--text2); font-size: 18px; }
+  .pw .moon { font-size: 46px; text-align: center; }
+  .pw h2 { font-size: 22px; font-weight: 700; text-align: center; margin-top: 8px; line-height: 1.2; }
+  .pw .psub { color: var(--text2); font-size: 13px; text-align: center; margin-top: 6px; line-height: 1.4; }
+  .social { text-align: center; margin-top: 10px; }
+  .social .st { color: var(--moon); letter-spacing: 2px; font-size: 15px; }
+  .social .sx { color: var(--text2); font-size: 11px; margin-top: 2px; }
+  .feat { display: flex; align-items: center; gap: 9px; margin: 7px 0; }
+  .feat .ck { width: 22px; height: 22px; border-radius: 50%; background: rgba(255,233,168,.18); color: var(--moon);
+              display: flex; align-items: center; justify-content: center; font-size: 12px; flex: none; }
+  .feat span { font-size: 13px; }
+  .plan { border: 1.5px solid var(--surface-variant); background: var(--surface); border-radius: 14px;
+          padding: 11px 12px; margin-top: 9px; display: flex; align-items: center; gap: 10px; position: relative; }
+  .plan.on { border-color: var(--lavender); background: rgba(185,168,255,.12); }
+  .radio { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--lavender);
+           display: flex; align-items: center; justify-content: center; flex: none; }
+  .radio i { width: 9px; height: 9px; border-radius: 50%; background: var(--lavender); display: block; }
+  .plan .pt { font-size: 14px; font-weight: 600; }
+  .plan .pc { color: var(--text2); font-size: 10.5px; margin-top: 1px; }
+  .plan .pp { margin-left: auto; font-size: 15px; font-weight: 700; }
+  .badge { position: absolute; top: -8px; left: 12px; background: var(--moon); color: var(--night);
+           font-size: 8.5px; font-weight: 800; padding: 2px 7px; border-radius: 7px; }
+
+  .legend { max-width: 760px; margin: 0 auto 36px; background: var(--surface); border-radius: 16px; padding: 20px 24px; color: var(--text2); font-size: 13px; line-height: 1.6; }
+  .legend b { color: var(--text); }
+
+  /* Volume maître + sécurité */
+  .vol { padding: 6px 4px 2px; }
+  .vol .vh { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .vol .vl { color: var(--text2); font-size: 12px; font-weight: 600; }
+  .vol .vbadge { background: var(--surface); color: var(--text2); font-size: 10px; font-weight: 600; padding: 4px 9px; border-radius: 11px; }
+  .vbar { height: 5px; border-radius: 3px; background: var(--surface-variant); position: relative; }
+  .vbar .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--soft-blue); }
+  .vbar .knob { position: absolute; top: 50%; width: 14px; height: 14px; border-radius: 50%; background: var(--soft-blue); transform: translate(-50%, -50%); }
+
+  /* Bottom sheet (minuterie / sécurité) */
+  .sheet { background: var(--surface); border-radius: 22px 22px 0 0; padding: 18px 16px 22px; margin-top: auto; }
+  .sheet h3 { font-size: 17px; font-weight: 700; }
+  .sheet .ss { color: var(--text2); font-size: 11.5px; margin: 4px 0 12px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { background: var(--surface-variant); color: var(--text2); font-size: 12px; font-weight: 600; padding: 9px 14px; border-radius: 13px; }
+  .chip.on { background: var(--lavender); color: var(--night); }
+  .crow { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+  .cinput { flex: 1; background: var(--surface-variant); border-radius: 11px; padding: 10px 12px; color: var(--text2); font-size: 14px; }
+  .cgo { background: var(--lavender); color: var(--night); font-weight: 700; font-size: 13px; padding: 10px 16px; border-radius: 11px; }
+  .sitem { display: flex; gap: 11px; align-items: center; margin: 8px 0; }
+  .sitem .si { font-size: 18px; }
+  .sitem .stx { font-size: 12.5px; line-height: 1.4; }
+  .srow { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--surface-variant); }
+  .srow .sri { font-size: 18px; }
+  .srow .srt { font-size: 13.5px; font-weight: 600; }
+  .srow .srs { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .srow .src { color: var(--text2); font-size: 20px; }
+</style>
+</head>
+<body>
+  <h1 class="page-title">🌙 Bébé Dort</h1>
+  <p class="page-sub">Aperçu statique des écrans de l'application — reconstitution fidèle (couleurs, textes, mise en page)</p>
+
+  <div class="legend">
+    <b>À propos de cet aperçu :</b> ce fichier HTML reproduit le rendu de l'app pour que tu puisses la regarder sans installer Expo Go.
+    Les animations (étoiles scintillantes, halo « respirant », pulsation du bouton lecture) sont reproduites en CSS.
+    Pour l'app réelle interactive : <b>npm install &amp;&amp; npm start</b>, puis scanne le QR code avec Expo Go.
+  </div>
+
+  <div class="grid">
+
+    <!-- WELCOME -->
+    <div class="frame-wrap">
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="stars" id="stars-w"></div>
+        <div class="pad">
+          <div class="w-center">
+            <div style="position:relative; display:flex; align-items:center; justify-content:center; margin-bottom:18px;">
+              <div class="glow"></div>
+              <img class="logo" src="assets/adaptive-icon.png" alt="logo" onerror="this.style.display='none'" />
+            </div>
+            <div class="w-title">Bébé Dort</div>
+            <div class="w-tag">Aidez bébé à s'endormir<br/>en quelques minutes</div>
+          </div>
+          <button class="btn">Commencer</button>
+          <div class="small">Sans publicité · Essai gratuit · Annulable à tout moment</div>
+        </div>
+      </div></div>
+      <div class="frame-label">1 · Écran de bienvenue</div>
+    </div>
+
+    <!-- ONBOARDING 1 -->
+    <div class="frame-wrap">
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="stars" id="stars-o"></div>
+        <div class="pad">
+          <div class="onb">
+            <div class="emoji">🌧️</div>
+            <h2>Des sons que les bébés adorent</h2>
+            <p>Pluie douce, battements de cœur du ventre et bruit blanc apaisant — conçus pour endormir les nouveau-nés.</p>
+          </div>
+          <div class="dots"><div class="dot on"></div><div class="dot"></div><div class="dot"></div></div>
+          <button class="btn">Suivant</button>
+        </div>
+      </div></div>
+      <div class="frame-label">2 · Onboarding (1/3)</div>
+    </div>
+
+    <!-- ONBOARDING 2 -->
+    <div class="frame-wrap">
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="pad">
+          <div class="onb">
+            <div class="emoji">🌙</div>
+            <h2>Joue toute la nuit, sans coupure</h2>
+            <p>Le son ne s'arrête jamais en pleine nuit et ne boucle jamais de façon audible. Vraiment infini, même hors-ligne.</p>
+          </div>
+          <div class="dots"><div class="dot"></div><div class="dot on"></div><div class="dot"></div></div>
+          <button class="btn">Suivant</button>
+        </div>
+      </div></div>
+      <div class="frame-label">3 · Onboarding (2/3)</div>
+    </div>
+
+    <!-- ONBOARDING 3 -->
+    <div class="frame-wrap">
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="pad">
+          <div class="onb">
+            <div class="emoji">🚫</div>
+            <h2>Aucune publicité. Jamais.</h2>
+            <p>Pas de vidéo à regarder avant de dormir. Ouvrez et lancez, c'est tout. Du calme pour bébé, du calme pour vous.</p>
+          </div>
+          <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot on"></div></div>
+          <button class="btn">Commencer</button>
+        </div>
+      </div></div>
+      <div class="frame-label">4 · Onboarding (3/3)</div>
+    </div>
+
+    <!-- HOME -->
+    <div class="frame-wrap">
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="pad">
+          <div class="header">
+            <div style="flex:1">
+              <div class="app-name">Bébé Dort</div>
+              <div class="sub">2 sons en lecture</div>
+              <div class="free-note">Aperçu gratuit · sessions de 15 min — débloquez toute la nuit</div>
+            </div>
+            <div class="pill">✨ Premium</div>
+          </div>
+
+          <div class="tip">
+            <b>Gardez le son toute la nuit</b>
+            <p>Certains téléphones arrêtent les apps pour économiser la batterie. Autorisez Bébé Dort à fonctionner sans restriction.</p>
+            <div class="row"><div class="cta">Ouvrir les réglages</div><div class="later">Plus tard</div></div>
+          </div>
+
+          <div class="sgrid">
+            <div class="card sel" style="--sel:#6FA8FF"><div class="ce">🌧️</div><div class="cl">Pluie douce</div><div class="mini-slider" style="background:#6FA8FF"></div></div>
+            <div class="card"><div class="ce">❤️</div><div class="cl">Cœur maternel</div></div>
+            <div class="card sel" style="--sel:#B9C4E0"><div class="ce">🔅</div><div class="cl">Bruit blanc</div><div class="mini-slider" style="background:#B9C4E0"></div></div>
+            <div class="card"><div class="ce">🌊</div><div class="cl">Vagues océan</div></div>
+            <div class="card"><span class="lock">🔒</span><div class="ce">⛈️</div><div class="cl">Pluie forte</div></div>
+            <div class="card"><span class="lock">🔒</span><div class="ce">🌸</div><div class="cl">Bruit rose</div></div>
+            <div class="card"><span class="lock">🔒</span><div class="ce">🌰</div><div class="cl">Bruit brun</div></div>
+            <div class="card"><span class="lock">🔒</span><div class="ce">🌬️</div><div class="cl">Vent doux</div></div>
+            <div class="card"><span class="lock">🔒</span><div class="ce">💧</div><div class="cl">Ruisseau</div></div>
+          </div>
+
+          <div class="vol">
+            <div class="vh"><span class="vl">Volume</span><span class="vbadge">👶 Volume sûr · en savoir plus</span></div>
+            <div class="vbar"><div class="fill" style="width:48%"></div><div class="knob" style="left:48%"></div></div>
+          </div>
+
+          <div class="controls">
+            <div class="timer"><div class="ti">⏱️</div>Minuterie</div>
+            <div class="play">❚❚</div>
+            <div style="width:50px"></div>
+          </div>
+        </div>
+      </div></div>
+      <div class="frame-label">5 · Écran principal (lecture, gratuit)</div>
+    </div>
+
+    <!-- PAYWALL -->
+    <div class="frame-wrap">
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="pad">
+          <div class="pw">
+            <div class="x">✕</div>
+            <div class="moon">🌙</div>
+            <h2>Votre aperçu gratuit<br/>est terminé</h2>
+            <div class="psub">Passez premium pour que le son joue toute la nuit, sans coupure.</div>
+            <div class="social"><div class="st">★★★★★</div><div class="sx">Rejoint par des milliers de parents apaisés</div></div>
+
+            <div style="margin-top:12px">
+              <div class="feat"><div class="ck">✓</div><span>Toutes les ambiances premium</span></div>
+              <div class="feat"><div class="ck">✓</div><span>Lecture illimitée, toute la nuit</span></div>
+              <div class="feat"><div class="ck">✓</div><span>Mixage de sons illimité</span></div>
+              <div class="feat"><div class="ck">✓</div><span>Sans publicité, pour toujours</span></div>
+            </div>
+
+            <div class="plan"><div class="radio"></div><div><div class="pt">Mensuel</div><div class="pc">Facturé chaque mois</div></div><div class="pp">6,99 €</div></div>
+            <div class="plan on"><div class="badge">MEILLEURE OFFRE · 7 JOURS OFFERTS</div><div class="radio"><i></i></div><div><div class="pt">Annuel</div><div class="pc">soit 2,92 €/mois — 58 % d'économie</div></div><div class="pp">34,99 €</div></div>
+            <div class="plan"><div class="radio"></div><div><div class="pt">À vie</div><div class="pc">Paiement unique, pour toujours</div></div><div class="pp">59,99 €</div></div>
+
+            <button class="btn" style="margin-top:14px">Démarrer l'essai gratuit de 7 jours</button>
+            <div class="small">7 jours gratuits, puis 34,99 €/an. Annulable à tout moment.</div>
+          </div>
+        </div>
+      </div></div>
+      <div class="frame-label">6 · Paywall (fin de session gratuite)</div>
+    </div>
+
+    <!-- TIMER SHEET -->
+    <div class="frame-wrap">
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="pad" style="padding-bottom:0">
+          <div class="header">
+            <div style="flex:1"><div class="app-name">Bébé Dort</div><div class="sub">2 sons en lecture</div></div>
+          </div>
+          <div style="flex:1"></div>
+          <div class="sheet">
+            <h3>Minuterie de sommeil</h3>
+            <div class="ss">Choisissez la durée — le son s'estompe en douceur à la fin</div>
+            <div class="chips">
+              <div class="chip">Désactivée</div>
+              <div class="chip">15 min</div>
+              <div class="chip on">30 min</div>
+              <div class="chip">45 min</div>
+              <div class="chip">60 min</div>
+              <div class="chip">90 min</div>
+              <div class="chip">120 min</div>
+              <div class="chip on">Personnalisée</div>
+            </div>
+            <div class="crow">
+              <div class="cinput">ex. 75</div>
+              <span style="color:var(--text2);font-size:13px">min</span>
+              <div class="cgo">Démarrer</div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+      <div class="frame-label">7 · Minuterie (durée au choix + personnalisée)</div>
+    </div>
+
+    <!-- SAFETY SHEET -->
+    <div class="frame-wrap">
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="pad" style="padding-bottom:0">
+          <div class="header">
+            <div style="flex:1"><div class="app-name">Bébé Dort</div></div>
+          </div>
+          <div class="vol" style="padding:0 4px">
+            <div class="vh"><span class="vl">Volume</span><span class="vbadge" style="color:#FF8FA3">⚠️ Volume élevé · en savoir plus</span></div>
+            <div class="vbar"><div class="fill" style="width:82%;background:#FF8FA3"></div><div class="knob" style="left:82%;background:#FF8FA3"></div></div>
+            <div style="color:#FF8FA3;font-size:10.5px;margin-top:4px">Éloignez le téléphone d'au moins 2 m du berceau.</div>
+          </div>
+          <div style="flex:1"></div>
+          <div class="sheet">
+            <h3>Sommeil sûr 👶</h3>
+            <div class="ss">Recommandations des pédiatres (AAP) pour protéger l'audition de bébé :</div>
+            <div class="sitem"><span class="si">🔉</span><span class="stx">Gardez le volume bas — restez dans la zone « Volume sûr ».</span></div>
+            <div class="sitem"><span class="si">📏</span><span class="stx">Placez le téléphone à au moins 2 m (7 pieds) du berceau.</span></div>
+            <div class="sitem"><span class="si">⏱️</span><span class="stx">Limitez la durée : utilisez la minuterie d'endormissement.</span></div>
+            <div class="sitem"><span class="si">👂</span><span class="stx">Repère : vous devez pouvoir parler normalement dans la pièce.</span></div>
+          </div>
+        </div>
+      </div></div>
+      <div class="frame-label">8 · Sommeil sûr (unique — sécurité auditive)</div>
+    </div>
+
+    <!-- SETTINGS SHEET -->
+    <div class="frame-wrap">
+      <div class="phone"><div class="notch"></div><div class="screen">
+        <div class="pad" style="padding-bottom:0">
+          <div class="header">
+            <div style="flex:1"><div class="app-name">Bébé Dort</div></div>
+            <div style="font-size:20px">⚙️</div>
+          </div>
+          <div style="flex:1"></div>
+          <div class="sheet">
+            <h3>Réglages</h3>
+            <div class="srow"><span class="sri">💳</span><div style="flex:1"><div class="srt">Gérer / résilier l'abonnement</div><div class="srs">Ouvre vos abonnements dans le store</div></div><span class="src">›</span></div>
+            <div class="srow"><span class="sri">🔄</span><div style="flex:1"><div class="srt">Restaurer mes achats</div></div><span class="src">›</span></div>
+            <div class="srow"><span class="sri">👶</span><div style="flex:1"><div class="srt">Sommeil sûr — conseils pédiatres</div></div><span class="src">›</span></div>
+            <div class="srow"><span class="sri">🔒</span><div style="flex:1"><div class="srt">Politique de confidentialité</div></div><span class="src">›</span></div>
+            <div class="srow"><span class="sri">📄</span><div style="flex:1"><div class="srt">Conditions d'utilisation</div></div><span class="src">›</span></div>
+            <div style="color:var(--text2);font-size:11px;text-align:center;margin-top:14px">Bébé Dort v1.0.0</div>
+          </div>
+        </div>
+      </div></div>
+      <div class="frame-label">9 · Réglages (gérer / résilier l'abonnement)</div>
+    </div>
+
+  </div>
+
+<script>
+  // Génère les étoiles scintillantes (écrans welcome + onboarding 1).
+  function seedStars(id, n) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    for (let i = 0; i < n; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      const size = 1.5 + Math.random() * 2.5;
+      s.style.width = size + 'px';
+      s.style.height = size + 'px';
+      s.style.left = Math.random() * 100 + '%';
+      s.style.top = Math.random() * 65 + '%';
+      s.style.animationDelay = (Math.random() * 3) + 's';
+      s.style.animationDuration = (1.6 + Math.random() * 2.2) + 's';
+      el.appendChild(s);
+    }
+  }
+  seedStars('stars-w', 26);
+  seedStars('stars-o', 18);
+</script>
+</body>
+</html>
