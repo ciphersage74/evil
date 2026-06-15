@@ -182,13 +182,21 @@ export async function isPremiumActive(): Promise<boolean> {
 }
 
 /** Lance l'achat du plan choisi. Renvoie true si premium actif (ou en démo). */
+let purchaseInFlight = false;
 export async function purchasePlan(planId: PlanId): Promise<boolean> {
   load();
   if (!available) {
     // Mode démo (Expo Go) : on simule un achat réussi pour tester l'UI.
     return true;
   }
+  // Sécurité anti-double-achat : refuse un 2e achat tant que le 1er n'est pas fini.
+  if (purchaseInFlight) return false;
+  purchaseInFlight = true;
   try {
+    // Si l'utilisateur a déjà un abonnement actif, ne relance pas d'achat.
+    const existing = await Purchases.getCustomerInfo().catch(() => null);
+    if (existing && hasActiveEntitlement(existing)) return true;
+
     const offering = (await Purchases.getOfferings()).current;
     const target = packageForPlan(offering, planId);
     if (!target) return false;
@@ -197,6 +205,8 @@ export async function purchasePlan(planId: PlanId): Promise<boolean> {
   } catch {
     // Annulation utilisateur ou erreur réseau.
     return false;
+  } finally {
+    purchaseInFlight = false;
   }
 }
 
