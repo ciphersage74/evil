@@ -16,7 +16,7 @@ export type PaywallReason = 'intro' | 'limit' | 'locked' | 'manual';
 const FEATURES = [
   'Toutes les ambiances premium',
   'Lecture illimitée, toute la nuit',
-  'Mixage de sons illimité',
+  'Continue écran éteint / en arrière-plan',
   'Minuteries personnalisées et fondu auto',
   'Sans publicité, pour toujours',
 ];

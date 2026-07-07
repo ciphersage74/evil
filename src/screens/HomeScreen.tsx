@@ -37,18 +37,19 @@ export function HomeScreen({
   onOpenPaywall,
   onRestore,
 }: Props) {
-  const { mix, isPlaying, timerRemaining, volume } = useAudio();
+  const { currentSound, isPlaying, timerRemaining, volume } = useAudio();
   const [showTimer, setShowTimer] = useState(false);
   const [showSafety, setShowSafety] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const activeCount = Object.keys(mix).length;
+  const active = currentSound !== null;
+  const currentLabel = SOUNDS.find((s) => s.id === currentSound)?.label;
 
   const onTap = (sound: Sound) => {
     if (sound.premium && !premium) {
       onOpenPaywall('locked');
       return;
     }
-    AudioManager.toggleSound(sound.id);
+    AudioManager.selectSound(sound.id);
   };
 
   return (
@@ -59,11 +60,9 @@ export function HomeScreen({
           <View style={{ flex: 1 }}>
             <Text style={styles.appName}>Bébé Dort</Text>
             <Text style={styles.subtitle}>
-              {activeCount === 0
-                ? 'Touchez un son pour démarrer'
-                : `${activeCount} son${activeCount > 1 ? 's' : ''} en lecture`}
+              {!active ? 'Touchez un son pour démarrer' : `En lecture : ${currentLabel}`}
             </Text>
-            {!premium && activeCount > 0 && (
+            {!premium && active && (
               <Pressable onPress={() => onOpenPaywall('limit')}>
                 <Text style={styles.freeNote}>
                   Aperçu gratuit · sessions de 15 min — débloquez toute la nuit
@@ -92,10 +91,9 @@ export function HomeScreen({
             <SoundCard
               key={sound.id}
               sound={sound}
-              volume={mix[sound.id]}
+              selected={sound.id === currentSound}
               locked={sound.premium && !premium}
               onTap={() => onTap(sound)}
-              onVolume={(v) => AudioManager.setVolume(sound.id, v)}
             />
           ))}
         </ScrollView>
@@ -118,7 +116,7 @@ export function HomeScreen({
 
           <PlayControl
             isPlaying={isPlaying}
-            enabled={activeCount > 0}
+            enabled={active}
             onPress={() => AudioManager.togglePlay()}
           />
 
@@ -297,18 +295,15 @@ function SafetyItem({ icon, text }: { icon: string; text: string }) {
 
 function SoundCard({
   sound,
-  volume,
+  selected,
   locked,
   onTap,
-  onVolume,
 }: {
   sound: Sound;
-  volume?: number;
+  selected: boolean;
   locked: boolean;
   onTap: () => void;
-  onVolume: (v: number) => void;
 }) {
-  const selected = volume !== undefined;
   return (
     <Pressable
       onPress={onTap}
@@ -322,18 +317,6 @@ function SoundCard({
       <Text style={[styles.cardLabel, selected && { color: theme.colors.textPrimary }]} numberOfLines={2}>
         {sound.label}
       </Text>
-      {selected && (
-        <Slider
-          style={styles.slider}
-          minimumValue={0}
-          maximumValue={1}
-          value={volume}
-          onValueChange={onVolume}
-          minimumTrackTintColor={sound.tint}
-          maximumTrackTintColor={hexA(sound.tint, 0.25)}
-          thumbTintColor={sound.tint}
-        />
-      )}
     </Pressable>
   );
 }

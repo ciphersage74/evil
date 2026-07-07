@@ -1,8 +1,10 @@
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
+import { AppState, AppStateStatus } from 'react-native';
 import { getSound } from './sounds';
 
 export type AudioState = {
-  mix: Record<string, number>; // id du son -> volume individuel (0..1)
+  /** Id du son actuellement sélectionné (un seul à la fois), ou null. */
+  currentSound: string | null;
   isPlaying: boolean;
   timerRemaining: number; // secondes restantes (0 = minuterie off)
   /** Volume maître réglé par le parent (0..1). */
@@ -13,55 +15,54 @@ export type AudioState = {
 
 type Listener = (state: AudioState) => void;
 
-const FADE_MS = 8000; // fondu de sortie de la minuterie (ne réveille pas bébé)
+const FADE_MS = 8000; // fondu de sortie (ne réveille pas bébé)
 const FADE_STEP_MS = 100;
 
-// Sécurité auditive (recommandations AAP : volume bas, appareil à ~2 m du berceau,
-// durée limitée). Au-delà de ce seuil, l'UI prévient le parent. Différenciateur
-// qu'aucune app concurrente de bruit pour bébé ne propose.
+// Sécurité auditive (AAP : volume bas, appareil à ~2 m du berceau, durée limitée).
 export const SAFE_VOLUME_MAX = 0.7;
 const DEFAULT_VOLUME = 0.55;
 
-// Levier de conversion : les utilisateurs gratuits ont des sessions limitées.
-// Le bénéfice clé "joue toute la nuit" devient une raison concrète de passer
-// premium (modèle prouvé : les paywalls à essai convertissent ~5x le freemium).
+// Levier de conversion : sessions gratuites limitées + arrière-plan réservé au premium.
 const FREE_SESSION_SECONDS = 15 * 60;
 
 /**
- * Source de vérité de la lecture. Singleton qui pilote expo-av :
- *  - plusieurs sons joués et mixés simultanément (volume par son),
- *  - lecture en arrière-plan / écran éteint (configurée dans init + app.json),
- *  - boucle continue via isLooping sur des fichiers déjà raccordés sans couture,
- *  - minuterie de sommeil avec fondu progressif.
+ * Lecture d'un seul son à la fois (plus simple et intuitif qu'un mixeur).
+ *  - Volume unique (maître) avec zone de sécurité auditive.
+ *  - Lecture en arrière-plan / écran éteint : RÉSERVÉE AUX PREMIUM. Les
+ *    utilisateurs gratuits voient la lecture se mettre en pause quand l'app
+ *    passe en fond (ce qui rend la limite de 15 min cohérente et fait de la
+ *    lecture "toute la nuit" un vrai avantage payant).
  */
 class AudioManagerImpl {
-  private sounds = new Map<string, Audio.Sound>();
+  private sound: Audio.Sound | null = null;
+  private currentId: string | null = null;
   private listeners = new Set<Listener>();
   private state: AudioState = {
-    mix: {},
+    currentSound: null,
     isPlaying: false,
     timerRemaining: 0,
     volume: DEFAULT_VOLUME,
     freeLimitHit: false,
   };
-  private userVolume = DEFAULT_VOLUME; // volume maître réglé par le parent
-  private fadeLevel = 1; // multiplicateur interne (fondu minuterie / session)
+  private userVolume = DEFAULT_VOLUME;
+  private fadeLevel = 1;
   private timerHandle: ReturnType<typeof setInterval> | null = null;
   private fadeHandle: ReturnType<typeof setInterval> | null = null;
   private freeSessionHandle: ReturnType<typeof setTimeout> | null = null;
   private premium = false;
   private initialized = false;
 
-  /** Renseigné par l'app : les premium n'ont aucune limite de session. */
+  /** Renseigné par l'app : premium = pas de limite + lecture en arrière-plan. */
   setPremium(value: boolean) {
+    const changed = this.premium !== value;
     this.premium = value;
     if (value) {
       this.clearFreeSession();
       if (this.state.freeLimitHit) this.emit({ freeLimitHit: false });
     }
+    if (changed && this.initialized) this.applyAudioMode();
   }
 
-  /** L'UI appelle ceci après avoir traité la fin de session (ouverture paywall). */
   acknowledgeFreeLimit() {
     if (this.state.freeLimitHit) this.emit({ freeLimitHit: false });
   }
@@ -69,12 +70,15 @@ class AudioManagerImpl {
   async init() {
     if (this.initialized) return;
     this.initialized = true;
-    // Lecture en arrière-plan / écran éteint (le bug "aucun son" venait d'un
-    // module manquant, pas de ce mode). Non bloquant par sécurité.
+    await this.applyAudioMode();
+    AppState.addEventListener('change', this.onAppStateChange);
+  }
+
+  private async applyAudioMode() {
     try {
       await Audio.setAudioModeAsync({
-        staysActiveInBackground: true, // continue quand l'écran s'éteint
-        playsInSilentModeIOS: true, // joue même en mode silencieux (iPhone)
+        staysActiveInBackground: this.premium, // arrière-plan = premium uniquement
+        playsInSilentModeIOS: true,
         shouldDuckAndroid: true,
         interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
         interruptionModeIOS: InterruptionModeIOS.MixWithOthers,
@@ -83,6 +87,13 @@ class AudioManagerImpl {
       console.warn('setAudioModeAsync a échoué', e);
     }
   }
+
+  private onAppStateChange = (next: AppStateStatus) => {
+    // Gratuit : pas de lecture en fond -> pause quand on quitte le premier plan.
+    if ((next === 'background' || next === 'inactive') && !this.premium && this.state.isPlaying) {
+      this.pause();
+    }
+  };
 
   subscribe(listener: Listener): () => void {
     this.listeners.add(listener);
@@ -99,68 +110,49 @@ class AudioManagerImpl {
     this.listeners.forEach((l) => l(this.state));
   }
 
-  // ---- Mix -----------------------------------------------------------------
+  // ---- Sélection du son (un seul à la fois) --------------------------------
 
-  async toggleSound(id: string) {
-    if (this.state.mix[id] !== undefined) {
-      await this.removeSound(id);
-    } else {
-      await this.addSound(id, 0.7);
-    }
-  }
-
-  async setVolume(id: string, volume: number) {
-    const v = Math.max(0, Math.min(1, volume));
-    if (v <= 0.01) {
-      await this.removeSound(id);
+  async selectSound(id: string) {
+    if (id === this.currentId && this.sound) {
+      // Déjà sélectionné : on s'assure que ça joue.
+      if (!this.state.isPlaying) await this.play();
       return;
     }
-    if (this.state.mix[id] === undefined) {
-      await this.addSound(id, v);
-      return;
-    }
-    this.emit({ mix: { ...this.state.mix, [id]: v } });
-    await this.sounds.get(id)?.setVolumeAsync(v * this.gain());
-  }
-
-  private async addSound(id: string, volume: number) {
+    await this.unloadCurrent();
     const meta = getSound(id);
     if (!meta) return;
     await this.init();
     try {
       const { sound } = await Audio.Sound.createAsync(meta.source, {
         isLooping: true,
-        volume: volume * this.gain(),
+        volume: this.gain(),
         shouldPlay: true,
       });
-      this.sounds.set(id, sound);
-      this.emit({ mix: { ...this.state.mix, [id]: volume }, isPlaying: true });
+      this.sound = sound;
+      this.currentId = id;
+      this.emit({ currentSound: id, isPlaying: true });
       this.startFreeSession();
     } catch (e) {
-      console.warn('addSound failed', id, e);
+      console.warn('selectSound failed', id, e);
     }
   }
 
-  private async removeSound(id: string) {
-    const sound = this.sounds.get(id);
-    if (sound) {
-      this.sounds.delete(id);
-      await sound.stopAsync().catch(() => {});
-      await sound.unloadAsync().catch(() => {});
+  private async unloadCurrent() {
+    if (this.sound) {
+      const s = this.sound;
+      this.sound = null;
+      this.currentId = null;
+      await s.stopAsync().catch(() => {});
+      await s.unloadAsync().catch(() => {});
     }
-    const mix = { ...this.state.mix };
-    delete mix[id];
-    const isPlaying = Object.keys(mix).length > 0 && this.state.isPlaying;
-    this.emit({ mix, isPlaying });
-    if (Object.keys(mix).length === 0) this.cleanupTimers();
   }
 
   // ---- Lecture -------------------------------------------------------------
 
   async play() {
-    if (Object.keys(this.state.mix).length === 0) return;
+    if (!this.sound) return;
     this.setFadeLevel(1);
-    await Promise.all([...this.sounds.values()].map((s) => s.playAsync().catch(() => {})));
+    await this.sound.playAsync().catch(() => {});
     this.emit({ isPlaying: true });
     this.startFreeSession();
   }
@@ -168,7 +160,7 @@ class AudioManagerImpl {
   async pause() {
     this.cleanupTimers();
     this.clearFreeSession();
-    await Promise.all([...this.sounds.values()].map((s) => s.pauseAsync().catch(() => {})));
+    if (this.sound) await this.sound.pauseAsync().catch(() => {});
     this.emit({ isPlaying: false });
   }
 
@@ -180,14 +172,8 @@ class AudioManagerImpl {
   async stopAll() {
     this.cleanupTimers();
     this.clearFreeSession();
-    await Promise.all(
-      [...this.sounds.values()].map(async (s) => {
-        await s.stopAsync().catch(() => {});
-        await s.unloadAsync().catch(() => {});
-      }),
-    );
-    this.sounds.clear();
-    this.emit({ mix: {}, isPlaying: false, timerRemaining: 0 });
+    await this.unloadCurrent();
+    this.emit({ currentSound: null, isPlaying: false, timerRemaining: 0 });
   }
 
   // ---- Minuterie de sommeil ------------------------------------------------
@@ -221,7 +207,7 @@ class AudioManagerImpl {
         if (this.fadeHandle) clearInterval(this.fadeHandle);
         this.fadeHandle = null;
         this.pause();
-        this.setFadeLevel(1); // réinitialise pour la prochaine lecture
+        this.setFadeLevel(1);
         onDone?.();
       } else {
         this.setFadeLevel(level);
@@ -229,15 +215,14 @@ class AudioManagerImpl {
     }, FADE_STEP_MS);
   }
 
-  // ---- Session gratuite limitée (levier de conversion) ---------------------
+  // ---- Session gratuite limitée --------------------------------------------
 
   private startFreeSession() {
     if (this.premium) return;
-    if (this.freeSessionHandle != null) return; // déjà en cours
+    if (this.freeSessionHandle != null) return;
     if (this.state.freeLimitHit) this.emit({ freeLimitHit: false });
     this.freeSessionHandle = setTimeout(() => {
       this.freeSessionHandle = null;
-      // Fondu doux (ne réveille pas bébé) puis signale au paywall.
       this.fadeOutAndPause(() => this.emit({ freeLimitHit: true }));
     }, FREE_SESSION_SECONDS * 1000);
   }
@@ -249,31 +234,25 @@ class AudioManagerImpl {
     }
   }
 
-  // ---- Volume maître (parent) + sécurité auditive --------------------------
+  // ---- Volume maître + sécurité auditive -----------------------------------
 
-  /** Volume effectif = choix parent × fondu interne. */
   private gain() {
     return this.userVolume * this.fadeLevel;
   }
 
-  /** Volume maître réglé par le parent (0..1). Appliqué immédiatement. */
   setUserVolume(volume: number) {
     this.userVolume = Math.max(0, Math.min(1, volume));
-    this.applyGains();
+    this.applyGain();
     this.emit({ volume: this.userVolume });
   }
 
-  /** Multiplicateur interne pour les fondus (minuterie / fin de session). */
   private setFadeLevel(level: number) {
     this.fadeLevel = Math.max(0, Math.min(1, level));
-    this.applyGains();
+    this.applyGain();
   }
 
-  private applyGains() {
-    const g = this.gain();
-    for (const [id, sound] of this.sounds) {
-      sound.setVolumeAsync((this.state.mix[id] ?? 0) * g).catch(() => {});
-    }
+  private applyGain() {
+    this.sound?.setVolumeAsync(this.gain()).catch(() => {});
   }
 
   private cleanupTimers() {

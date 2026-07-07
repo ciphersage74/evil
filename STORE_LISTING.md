@@ -45,8 +45,8 @@ Contrairement à d'autres apps, le son ne s'arrête jamais en pleine nuit et ne 
 🚫 ZÉRO PUBLICITÉ
 Aucune publicité, jamais. Du calme pour bébé, du calme pour vous.
 
-🎚️ MIXEUR DE SONS
-Combinez plusieurs ambiances (pluie + cœur maternel, par exemple) et réglez le volume de chaque son pour créer le cocon parfait.
+🎚️ VOLUME SÛR, RÉGLAGE SIMPLE
+Un son à la fois, un volume unique avec repère de sécurité auditive. Simple à régler à 3 h du matin.
 
 ⏱️ MINUTERIE DE SOMMEIL
 Choisissez la durée (ou une durée personnalisée) : le son s'estompe en douceur à la fin pour ne pas réveiller bébé.
@@ -77,7 +77,7 @@ sons relaxants, vagues océan, berceuse, sans pub, minuterie, hors-ligne.
 ```
 Première version de Bébé Dort 🌙
 • Sons de pluie, bruit blanc et cœur maternel
-• Mixeur de sons + volume par son
+• Un seul son à la fois, volume avec zone sûre
 • Minuterie de sommeil avec fondu
 • Lecture toute la nuit, sans pub, hors-ligne
 • Volume sûr : conseils pour protéger l'audition de bébé
