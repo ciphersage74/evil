@@ -15,9 +15,8 @@ export type PaywallReason = 'intro' | 'limit' | 'locked' | 'manual';
 
 const FEATURES = [
   'Toutes les ambiances premium',
-  'Lecture illimitée, toute la nuit',
-  'Continue écran éteint / en arrière-plan',
-  'Minuteries personnalisées et fondu auto',
+  'Lecture illimitée, toute la nuit (sans limite de 15 min)',
+  'Minuteries longues et personnalisées',
   'Sans publicité, pour toujours',
 ];
 

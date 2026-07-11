@@ -21,8 +21,8 @@ const PAGES = [
   },
   {
     emoji: '🌙',
-    title: 'Des boucles parfaites, sans coupure',
-    body: "Aucune boucle audible, même hors-ligne. Et avec Premium, le son continue écran éteint — toute la nuit.",
+    title: 'Continue écran éteint',
+    body: "Le son continue quand vous verrouillez le téléphone ou changez d'app, sans boucle audible, même hors-ligne. Illimité avec Premium.",
   },
   {
     emoji: '🚫',

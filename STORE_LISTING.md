@@ -39,8 +39,8 @@ Conçue par et pour des parents épuisés : ouvrez l'app, touchez un son, et c'e
 • Vagues de l'océan, vent doux, ruisseau de forêt
 • Ventilateur et sèche-cheveux (le fameux bruit qui calme les nourrissons)
 
-🌙 DES BOUCLES PARFAITES, SANS COUPURE AUDIBLE
-Aucune boucle audible, même hors-ligne. Avec Premium, la lecture continue écran éteint — toute la nuit, sans interruption.
+🌙 CONTINUE ÉCRAN ÉTEINT
+Le son continue quand vous verrouillez le téléphone ou utilisez une autre app, sans boucle audible, même hors-ligne. Avec Premium, la lecture est illimitée — toute la nuit.
 
 🚫 ZÉRO PUBLICITÉ
 Aucune publicité, jamais. Du calme pour bébé, du calme pour vous.

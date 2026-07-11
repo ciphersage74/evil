@@ -65,7 +65,7 @@ export function HomeScreen({
             {!premium && active && (
               <Pressable onPress={() => onOpenPaywall('limit')}>
                 <Text style={styles.freeNote}>
-                  Gratuit : 15 min, écran allumé — Premium : toute la nuit, écran éteint
+                  Gratuit : 15 min par session — Premium : illimité, toute la nuit
                 </Text>
               </Pressable>
             )}
@@ -80,8 +80,8 @@ export function HomeScreen({
           </Pressable>
         </View>
 
-        {/* Conseil batterie (premium : lecture en fond) — "le son s'arrête la nuit" */}
-        {premium && isPlaying && !batteryTipDismissed && Platform.OS === 'android' && (
+        {/* Conseil batterie : la lecture en fond concerne tout le monde */}
+        {isPlaying && !batteryTipDismissed && Platform.OS === 'android' && (
           <BatteryTip onDismiss={onDismissBatteryTip} />
         )}
 

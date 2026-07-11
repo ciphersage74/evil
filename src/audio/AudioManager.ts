@@ -1,5 +1,4 @@
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
-import { AppState, AppStateStatus } from 'react-native';
 import { getSound } from './sounds';
 
 export type AudioState = {
@@ -24,16 +23,17 @@ const FADE_STEP_MS = 100;
 export const SAFE_VOLUME_MAX = 0.7;
 const DEFAULT_VOLUME = 0.55;
 
-// Levier de conversion : sessions gratuites limitées + arrière-plan réservé au premium.
+// Levier de conversion : 15 min de lecture par session pour les gratuits.
 const FREE_SESSION_SECONDS = 15 * 60;
 
 /**
  * Lecture d'un seul son à la fois (plus simple et intuitif qu'un mixeur).
  *  - Volume unique (maître) avec zone de sécurité auditive.
- *  - Lecture en arrière-plan / écran éteint : RÉSERVÉE AUX PREMIUM. Les
- *    utilisateurs gratuits voient la lecture se mettre en pause quand l'app
- *    passe en fond (ce qui rend la limite de 15 min cohérente et fait de la
- *    lecture "toute la nuit" un vrai avantage payant).
+ *  - Lecture en arrière-plan / écran éteint POUR TOUS (gratuit inclus) : le son
+ *    continue quand on verrouille le téléphone ou utilise une autre app.
+ *  - Gratuit : 15 min de lecture cumulée par session (le compteur tourne aussi
+ *    en arrière-plan, la pause ne le réinitialise pas) puis fondu + paywall.
+ *    Premium : illimité.
  */
 class AudioManagerImpl {
   private sound: Audio.Sound | null = null;
@@ -51,19 +51,20 @@ class AudioManagerImpl {
   private fadeLevel = 1;
   private timerHandle: ReturnType<typeof setInterval> | null = null;
   private fadeHandle: ReturnType<typeof setInterval> | null = null;
-  private freeSessionHandle: ReturnType<typeof setTimeout> | null = null;
+  private freeTicker: ReturnType<typeof setInterval> | null = null;
+  /** Secondes de lecture cumulées de la session gratuite (pause ≠ reset). */
+  private freeElapsed = 0;
   private premium = false;
   private initialized = false;
 
-  /** Renseigné par l'app : premium = pas de limite + lecture en arrière-plan. */
+  /** Renseigné par l'app : premium = pas de limite de durée. */
   setPremium(value: boolean) {
-    const changed = this.premium !== value;
     this.premium = value;
     if (value) {
-      this.clearFreeSession();
+      this.stopFreeTracking();
+      this.freeElapsed = 0;
       if (this.state.freeLimitHit) this.emit({ freeLimitHit: false });
     }
-    if (changed && this.initialized) this.applyAudioMode();
   }
 
   acknowledgeFreeLimit() {
@@ -73,14 +74,9 @@ class AudioManagerImpl {
   async init() {
     if (this.initialized) return;
     this.initialized = true;
-    await this.applyAudioMode();
-    AppState.addEventListener('change', this.onAppStateChange);
-  }
-
-  private async applyAudioMode() {
     try {
       await Audio.setAudioModeAsync({
-        staysActiveInBackground: this.premium, // arrière-plan = premium uniquement
+        staysActiveInBackground: true, // écran éteint / autre app : le son continue
         playsInSilentModeIOS: true,
         shouldDuckAndroid: true,
         interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
@@ -90,13 +86,6 @@ class AudioManagerImpl {
       console.warn('setAudioModeAsync a échoué', e);
     }
   }
-
-  private onAppStateChange = (next: AppStateStatus) => {
-    // Gratuit : pas de lecture en fond -> pause quand on quitte le premier plan.
-    if ((next === 'background' || next === 'inactive') && !this.premium && this.state.isPlaying) {
-      this.pause();
-    }
-  };
 
   subscribe(listener: Listener): () => void {
     this.listeners.add(listener);
@@ -162,7 +151,7 @@ class AudioManagerImpl {
 
   async pause() {
     this.cleanupTimers();
-    this.clearFreeSession();
+    this.stopFreeTracking();
     if (this.sound) await this.sound.pauseAsync().catch(() => {});
     this.emit({ isPlaying: false });
   }
@@ -174,7 +163,7 @@ class AudioManagerImpl {
 
   async stopAll() {
     this.cleanupTimers();
-    this.clearFreeSession();
+    this.stopFreeTracking();
     await this.unloadCurrent();
     this.emit({ currentSound: null, isPlaying: false, timerRemaining: 0 });
   }
@@ -219,21 +208,30 @@ class AudioManagerImpl {
   }
 
   // ---- Session gratuite limitée --------------------------------------------
+  // Compte les secondes réellement jouées (y compris écran éteint / en fond).
+  // La pause suspend le compteur sans le réinitialiser. Quand la limite est
+  // atteinte : fondu, paywall, et le compteur repart à zéro pour la prochaine
+  // session (pas de blocage définitif — frustrer sans punir).
 
   private startFreeSession() {
     if (this.premium) return;
-    if (this.freeSessionHandle != null) return;
+    if (this.freeTicker != null) return;
     if (this.state.freeLimitHit) this.emit({ freeLimitHit: false });
-    this.freeSessionHandle = setTimeout(() => {
-      this.freeSessionHandle = null;
-      this.fadeOutAndPause(() => this.emit({ freeLimitHit: true }));
-    }, FREE_SESSION_SECONDS * 1000);
+    this.freeTicker = setInterval(() => {
+      if (!this.state.isPlaying) return;
+      this.freeElapsed += 1;
+      if (this.freeElapsed >= FREE_SESSION_SECONDS) {
+        this.stopFreeTracking();
+        this.freeElapsed = 0;
+        this.fadeOutAndPause(() => this.emit({ freeLimitHit: true }));
+      }
+    }, 1000);
   }
 
-  private clearFreeSession() {
-    if (this.freeSessionHandle != null) {
-      clearTimeout(this.freeSessionHandle);
-      this.freeSessionHandle = null;
+  private stopFreeTracking() {
+    if (this.freeTicker != null) {
+      clearInterval(this.freeTicker);
+      this.freeTicker = null;
     }
   }
 
