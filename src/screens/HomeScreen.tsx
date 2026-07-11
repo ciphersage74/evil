@@ -37,7 +37,7 @@ export function HomeScreen({
   onOpenPaywall,
   onRestore,
 }: Props) {
-  const { currentSound, isPlaying, timerRemaining, volume } = useAudio();
+  const { currentSound, isPlaying, timerRemaining, timerMinutes, volume } = useAudio();
   const [showTimer, setShowTimer] = useState(false);
   const [showSafety, setShowSafety] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -65,7 +65,7 @@ export function HomeScreen({
             {!premium && active && (
               <Pressable onPress={() => onOpenPaywall('limit')}>
                 <Text style={styles.freeNote}>
-                  Aperçu gratuit · sessions de 15 min — débloquez toute la nuit
+                  Gratuit : 15 min, écran allumé — Premium : toute la nuit, écran éteint
                 </Text>
               </Pressable>
             )}
@@ -126,11 +126,16 @@ export function HomeScreen({
 
       <TimerModal
         visible={showTimer}
-        current={timerRemaining}
+        currentMinutes={timerMinutes}
+        premium={premium}
         onClose={() => setShowTimer(false)}
         onPick={(m) => {
           AudioManager.setTimer(m);
           setShowTimer(false);
+        }}
+        onLocked={() => {
+          setShowTimer(false);
+          onOpenPaywall('limit');
         }}
       />
 
@@ -396,16 +401,23 @@ function BatteryTip({ onDismiss }: { onDismiss: () => void }) {
 
 function TimerModal({
   visible,
-  current,
+  currentMinutes,
+  premium,
   onClose,
   onPick,
+  onLocked,
 }: {
   visible: boolean;
-  current: number;
+  currentMinutes: number;
+  premium: boolean;
   onClose: () => void;
   onPick: (minutes: number) => void;
+  onLocked: () => void;
 }) {
   const options = [0, 15, 30, 45, 60, 90, 120];
+  // Gratuit : sessions de 15 min max -> les durées supérieures sont premium
+  // (sinon on laisserait programmer 2 h pour couper à 15 min, absurde).
+  const isLocked = (m: number) => !premium && m > 15;
   const [customOpen, setCustomOpen] = useState(false);
   const [customValue, setCustomValue] = useState('');
 
@@ -428,12 +440,16 @@ function TimerModal({
           {options.map((m) => (
             <Chip
               key={m}
-              label={m === 0 ? 'Désactivée' : `${m} min`}
-              active={current > 0 && Math.ceil(current / 60) === m}
-              onPress={() => onPick(m)}
+              label={m === 0 ? 'Désactivée' : isLocked(m) ? `${m} min 🔒` : `${m} min`}
+              active={currentMinutes === m && m > 0}
+              onPress={() => (isLocked(m) ? onLocked() : onPick(m))}
             />
           ))}
-          <Chip label="Personnalisée" active={customOpen} onPress={() => setCustomOpen((o) => !o)} />
+          <Chip
+            label={premium ? 'Personnalisée' : 'Personnalisée 🔒'}
+            active={customOpen}
+            onPress={() => (premium ? setCustomOpen((o) => !o) : onLocked())}
+          />
         </View>
 
         {customOpen && (

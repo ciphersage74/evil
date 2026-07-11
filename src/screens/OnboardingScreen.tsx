@@ -21,8 +21,8 @@ const PAGES = [
   },
   {
     emoji: '🌙',
-    title: 'Joue toute la nuit, sans coupure',
-    body: "Le son ne s'arrête jamais en pleine nuit et ne boucle jamais de façon audible. Vraiment infini, même hors-ligne.",
+    title: 'Des boucles parfaites, sans coupure',
+    body: "Aucune boucle audible, même hors-ligne. Et avec Premium, le son continue écran éteint — toute la nuit.",
   },
   {
     emoji: '🚫',

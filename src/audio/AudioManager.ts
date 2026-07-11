@@ -7,6 +7,8 @@ export type AudioState = {
   currentSound: string | null;
   isPlaying: boolean;
   timerRemaining: number; // secondes restantes (0 = minuterie off)
+  /** Durée choisie pour la minuterie en minutes (0 = off). */
+  timerMinutes: number;
   /** Volume maître réglé par le parent (0..1). */
   volume: number;
   /** true quand la session gratuite vient d'expirer -> déclenche le paywall. */
@@ -41,6 +43,7 @@ class AudioManagerImpl {
     currentSound: null,
     isPlaying: false,
     timerRemaining: 0,
+    timerMinutes: 0,
     volume: DEFAULT_VOLUME,
     freeLimitHit: false,
   };
@@ -181,12 +184,12 @@ class AudioManagerImpl {
   async setTimer(minutes: number) {
     this.cleanupTimers();
     if (minutes <= 0) {
-      this.emit({ timerRemaining: 0 });
+      this.emit({ timerRemaining: 0, timerMinutes: 0 });
       return;
     }
     if (!this.state.isPlaying) await this.play();
     let remaining = minutes * 60;
-    this.emit({ timerRemaining: remaining });
+    this.emit({ timerRemaining: remaining, timerMinutes: minutes });
     this.timerHandle = setInterval(() => {
       remaining -= 1;
       if (remaining <= 0) {
@@ -260,7 +263,9 @@ class AudioManagerImpl {
     if (this.fadeHandle) clearInterval(this.fadeHandle);
     this.timerHandle = null;
     this.fadeHandle = null;
-    if (this.state.timerRemaining !== 0) this.emit({ timerRemaining: 0 });
+    if (this.state.timerRemaining !== 0 || this.state.timerMinutes !== 0) {
+      this.emit({ timerRemaining: 0, timerMinutes: 0 });
+    }
   }
 }
 

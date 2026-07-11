@@ -20,7 +20,7 @@ Bruit blanc et sons relaxants pour le sommeil de bébé. Sans pub.
 
 **Variante (80 car., ajoute « pluie » + « dormir ») — au choix :**
 ```
-Sons de pluie & bruit blanc pour endormir bébé. Sans pub, toute la nuit.
+Sons de pluie & bruit blanc pour endormir bébé. Sans pub, hors-ligne.
 ```
 
 ---
@@ -39,8 +39,8 @@ Conçue par et pour des parents épuisés : ouvrez l'app, touchez un son, et c'e
 • Vagues de l'océan, vent doux, ruisseau de forêt
 • Ventilateur et sèche-cheveux (le fameux bruit qui calme les nourrissons)
 
-🌙 JOUE TOUTE LA NUIT, SANS COUPURE
-Contrairement à d'autres apps, le son ne s'arrête jamais en pleine nuit et ne boucle jamais de façon audible. Lecture vraiment continue, même écran éteint et hors-ligne.
+🌙 DES BOUCLES PARFAITES, SANS COUPURE AUDIBLE
+Aucune boucle audible, même hors-ligne. Avec Premium, la lecture continue écran éteint — toute la nuit, sans interruption.
 
 🚫 ZÉRO PUBLICITÉ
 Aucune publicité, jamais. Du calme pour bébé, du calme pour vous.
@@ -79,7 +79,7 @@ Première version de Bébé Dort 🌙
 • Sons de pluie, bruit blanc et cœur maternel
 • Un seul son à la fois, volume avec zone sûre
 • Minuterie de sommeil avec fondu
-• Lecture toute la nuit, sans pub, hors-ligne
+• Sans pub, hors-ligne · Premium : lecture toute la nuit, écran éteint
 • Volume sûr : conseils pour protéger l'audition de bébé
 ```
 
