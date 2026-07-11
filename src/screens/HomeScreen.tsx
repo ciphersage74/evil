@@ -80,8 +80,8 @@ export function HomeScreen({
           </Pressable>
         </View>
 
-        {/* Conseil batterie : corrige "le son s'arrête la nuit" */}
-        {isPlaying && !batteryTipDismissed && Platform.OS === 'android' && (
+        {/* Conseil batterie (premium : lecture en fond) — "le son s'arrête la nuit" */}
+        {premium && isPlaying && !batteryTipDismissed && Platform.OS === 'android' && (
           <BatteryTip onDismiss={onDismissBatteryTip} />
         )}
 
