@@ -111,6 +111,10 @@
   .card { background: var(--surface); border: 1.5px solid transparent; border-radius: 18px;
           padding: 10px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; min-height: 78px; }
   .card .ce { font-size: 26px; }
+  .card .bubble { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 5px; }
+  .card .dot { position: absolute; top: 7px; left: 8px; width: 7px; height: 7px; border-radius: 50%; }
+  .sidebtn { width: 60px; text-align: center; color: var(--text2); font-size: 10px; background: var(--surface); border-radius: 12px; padding: 7px 0; }
+  .sidebtn .ti { font-size: 18px; margin-bottom: 2px; }
   .card .cl { color: var(--text2); font-size: 10px; margin-top: 5px; text-align: center; }
   .card.sel { border-color: var(--sel); background: color-mix(in srgb, var(--sel) 20%, transparent); }
   .card.sel .cl { color: var(--text); }
@@ -282,15 +286,15 @@
           </div>
 
           <div class="sgrid">
-            <div class="card sel" style="--sel:#6FA8FF"><div class="ce">🌧️</div><div class="cl">Pluie douce</div><div class="mini-slider" style="background:#6FA8FF"></div></div>
-            <div class="card"><div class="ce">❤️</div><div class="cl">Cœur maternel</div></div>
-            <div class="card sel" style="--sel:#B9C4E0"><div class="ce">🔅</div><div class="cl">Bruit blanc</div><div class="mini-slider" style="background:#B9C4E0"></div></div>
-            <div class="card"><div class="ce">🌊</div><div class="cl">Vagues océan</div></div>
-            <div class="card"><span class="lock">🔒</span><div class="ce">⛈️</div><div class="cl">Pluie forte</div></div>
-            <div class="card"><span class="lock">🔒</span><div class="ce">🌸</div><div class="cl">Bruit rose</div></div>
-            <div class="card"><span class="lock">🔒</span><div class="ce">🌰</div><div class="cl">Bruit brun</div></div>
-            <div class="card"><span class="lock">🔒</span><div class="ce">🌬️</div><div class="cl">Vent doux</div></div>
-            <div class="card"><span class="lock">🔒</span><div class="ce">💧</div><div class="cl">Ruisseau</div></div>
+            <div class="card sel" style="--sel:#6FA8FF"><span class="dot" style="background:#6FA8FF"></span><div class="bubble" style="background:rgba(111,168,255,.30)">🌧️</div><div class="cl">Pluie douce</div></div>
+            <div class="card"><div class="bubble" style="background:rgba(255,143,163,.14)">❤️</div><div class="cl">Cœur maternel</div></div>
+            <div class="card"><div class="bubble" style="background:rgba(185,196,224,.14)">🔅</div><div class="cl">Bruit blanc</div></div>
+            <div class="card"><div class="bubble" style="background:rgba(85,198,214,.14)">🌊</div><div class="cl">Vagues océan</div></div>
+            <div class="card"><span class="lock">🔒</span><div class="bubble" style="background:rgba(79,127,224,.14)">⛈️</div><div class="cl">Pluie forte</div></div>
+            <div class="card"><span class="lock">🔒</span><div class="bubble" style="background:rgba(255,168,208,.14)">🌸</div><div class="cl">Bruit rose</div></div>
+            <div class="card"><span class="lock">🔒</span><div class="bubble" style="background:rgba(210,166,121,.14)">🌰</div><div class="cl">Bruit brun</div></div>
+            <div class="card"><span class="lock">🔒</span><div class="bubble" style="background:rgba(159,224,192,.14)">🌬️</div><div class="cl">Vent doux</div></div>
+            <div class="card"><span class="lock">🔒</span><div class="bubble" style="background:rgba(127,208,255,.14)">💧</div><div class="cl">Ruisseau</div></div>
           </div>
 
           <div class="vol">
@@ -299,9 +303,9 @@
           </div>
 
           <div class="controls">
-            <div class="timer"><div class="ti">⏱️</div>Minuterie</div>
+            <div class="sidebtn"><div class="ti">⏱️</div>Minuterie</div>
             <div class="play">❚❚</div>
-            <div style="width:50px"></div>
+            <div class="sidebtn"><div class="ti">🌙</div>Écran noir</div>
           </div>
         </div>
       </div></div>
