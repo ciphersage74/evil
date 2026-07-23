@@ -48,6 +48,9 @@ Aucune publicité, jamais. Du calme pour bébé, du calme pour vous.
 🎚️ VOLUME SÛR, RÉGLAGE SIMPLE
 Un son à la fois, un volume unique avec repère de sécurité auditive. Simple à régler à 3 h du matin.
 
+🌑 MODE ÉCRAN NOIR
+Un appui et l'écran devient noir : plus aucune lumière dans la chambre, et le son continue. Fini les apps qui éclairent le berceau toute la nuit.
+
 ⏱️ MINUTERIE DE SOMMEIL
 Choisissez la durée (ou une durée personnalisée) : le son s'estompe en douceur à la fin pour ne pas réveiller bébé.
 
@@ -59,6 +62,7 @@ La seule app de bruit pour bébé qui prend soin de l'audition : un repère de �
 • Fonctionne hors-ligne, partout (voiture, poussette, voyage)
 • Aucune publicité
 • Sons de haute qualité, en boucle parfaite
+• Mode écran noir : n'éclaire pas la chambre
 • Simple, beau, pensé pour une utilisation à 3 h du matin
 
 Téléchargez Bébé Dort et offrez à toute la famille des nuits plus paisibles. 🌙

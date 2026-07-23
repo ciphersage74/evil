@@ -41,8 +41,14 @@ export function HomeScreen({
   const [showTimer, setShowTimer] = useState(false);
   const [showSafety, setShowSafety] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [dimmed, setDimmed] = useState(false);
   const active = currentSound !== null;
   const currentLabel = SOUNDS.find((s) => s.id === currentSound)?.label;
+
+  // Si la lecture s'arrête (minuterie, fin de session), on rallume l'écran.
+  useEffect(() => {
+    if (!isPlaying && dimmed) setDimmed(false);
+  }, [isPlaying, dimmed]);
 
   const onTap = (sound: Sound) => {
     if (sound.premium && !premium) {
@@ -107,9 +113,9 @@ export function HomeScreen({
 
         {/* Barre de contrôle */}
         <View style={styles.controls}>
-          <Pressable style={styles.timerBtn} onPress={() => setShowTimer(true)}>
-            <Text style={styles.timerIcon}>⏱️</Text>
-            <Text style={styles.timerLabel}>
+          <Pressable style={styles.sideBtn} onPress={() => setShowTimer(true)}>
+            <Text style={styles.sideIcon}>⏱️</Text>
+            <Text style={styles.sideLabel}>
               {timerRemaining > 0 ? formatTime(timerRemaining) : 'Minuterie'}
             </Text>
           </Pressable>
@@ -120,9 +126,26 @@ export function HomeScreen({
             onPress={() => AudioManager.togglePlay()}
           />
 
-          <View style={{ width: 56 }} />
+          {/* Mode Nuit : éteint l'écran visuellement pour ne pas éclairer la
+              chambre (plainte fréquente sur les apps concurrentes). */}
+          <Pressable
+            style={[styles.sideBtn, !isPlaying && { opacity: 0.4 }]}
+            disabled={!isPlaying}
+            onPress={() => setDimmed(true)}
+          >
+            <Text style={styles.sideIcon}>🌙</Text>
+            <Text style={styles.sideLabel}>Écran noir</Text>
+          </Pressable>
         </View>
       </View>
+
+      {/* Voile Mode Nuit : quasi noir, un tap le retire. Le son continue. */}
+      {dimmed && (
+        <Pressable style={styles.dimOverlay} onPress={() => setDimmed(false)}>
+          <Text style={styles.dimMoon}>🌙</Text>
+          <Text style={styles.dimHint}>Le son continue · Touchez pour rallumer</Text>
+        </Pressable>
+      )}
 
       <TimerModal
         visible={showTimer}
@@ -318,12 +341,32 @@ function SoundCard({
       ]}
     >
       {locked && <Text style={styles.lock}>🔒</Text>}
-      <Text style={styles.cardEmoji}>{sound.emoji}</Text>
+      {selected && <PlayingDot color={sound.tint} />}
+      <View style={[styles.emojiBubble, { backgroundColor: hexA(sound.tint, selected ? 0.3 : 0.14) }]}>
+        <Text style={styles.cardEmoji}>{sound.emoji}</Text>
+      </View>
       <Text style={[styles.cardLabel, selected && { color: theme.colors.textPrimary }]} numberOfLines={2}>
         {sound.label}
       </Text>
     </Pressable>
   );
+}
+
+/** Petit point pulsant "en lecture" sur la carte active. */
+function PlayingDot({ color }: { color: string }) {
+  const pulse = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, { toValue: 1, duration: 900, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 0, duration: 900, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [pulse]);
+  const opacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.35, 1] });
+  return <Animated.View style={[styles.playingDot, { backgroundColor: color, opacity }]} />;
 }
 
 function PlayControl({
@@ -540,7 +583,23 @@ const styles = StyleSheet.create({
     padding: 8,
     marginBottom: 12,
   },
-  cardEmoji: { fontSize: 32, marginBottom: 6 },
+  cardEmoji: { fontSize: 30 },
+  emojiBubble: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  playingDot: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
   cardLabel: { color: theme.colors.textSecondary, fontSize: 12, textAlign: 'center' },
   lock: { position: 'absolute', top: 8, right: 8, fontSize: 12 },
   slider: { width: '100%', height: 28, marginTop: 4 },
@@ -583,9 +642,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 16,
   },
-  timerBtn: { alignItems: 'center', width: 56 },
-  timerIcon: { fontSize: 22 },
-  timerLabel: { color: theme.colors.textSecondary, fontSize: 12, marginTop: 2 },
+  sideBtn: {
+    alignItems: 'center',
+    width: 76,
+    paddingVertical: 8,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.surface,
+  },
+  sideIcon: { fontSize: 20 },
+  sideLabel: { color: theme.colors.textSecondary, fontSize: 11, marginTop: 2 },
+  dimOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#000',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 100,
+  },
+  dimMoon: { fontSize: 30, opacity: 0.25 },
+  dimHint: { color: 'rgba(154,166,204,0.25)', fontSize: 12, marginTop: 12 },
   playWrap: { width: 76, height: 76, alignItems: 'center', justifyContent: 'center' },
   playGlow: {
     position: 'absolute',
